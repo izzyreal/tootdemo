@@ -13,12 +13,14 @@ import java.io.*;
  */
 public class DemoProperties extends Properties
 {
+	private File file;
+	
     public DemoProperties(File path) {
         try {
 	        load(
                 new BufferedInputStream(
                 	new FileInputStream(
-                    	new File(path, "demo.properties")
+                    	file = new File(path, "demo.properties")
                     )
                 )
             );
@@ -27,6 +29,14 @@ public class DemoProperties extends Properties
         }
     }
 
+    public void store() {
+    	try {
+    		store(new FileOutputStream(file), null);
+    	} catch ( IOException ioe ) {
+    		System.out.println("Failed to store configuration "+file.getPath());
+    	}
+    }
+    
     public String getProperty(String key) {
         // first see if there's a default demo property
         String defaultProperty = super.getProperty(key);

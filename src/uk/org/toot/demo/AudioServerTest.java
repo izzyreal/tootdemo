@@ -23,7 +23,7 @@ public class AudioServerTest extends AbstractDemo
 
     protected void createUI(String[] args) {
         super.createUI(args);
-        frame(AudioServerUIServices.createServerUI(realServer), "Audio Server Test");
+        frame(AudioServerUIServices.createServerUI(realServer, null), "Audio Server Test");
     }
 
     public static void main(String[] args) {

@@ -9,6 +9,8 @@ import uk.org.toot.swingui.projectui.*;
 import uk.org.toot.swingui.audioui.mixerui.*;
 import uk.org.toot.swingui.audioui.serverui.*;
 
+import javax.swing.JToolBar;
+
 /**
  * TransportProjectDemo displays a full user interface over the underlying
  * demonstration problem domain model, with the multi-track player and automated
@@ -16,17 +18,20 @@ import uk.org.toot.swingui.audioui.serverui.*;
  */
 public class TransportProjectDemo extends AbstractDemo 
 {
+    private JToolBar toolBar;
+
     public TransportProjectDemo(String[] args) {
         super(args);
     }
 
     protected void createUI(String[] args) {
+        toolBar = new JToolBar();
         super.createUI(args);
-        SingleTransportProjectPanel panel = new SingleTransportProjectPanel(project);
+        // the audio server panel is provided by a service provider
+        toolBar.add(new AudioServerUIButton(AudioServerUIServices.createServerUI(realServer, serverConfig)));
+        SingleTransportProjectPanel panel = new SingleTransportProjectPanel(project, toolBar);
 //        panel.addTab("MultiTrack", new MultiTrackPanel(multiTrackControls));
         panel.addTab("Audio Mixer", new CompactMixerPanel(mixerControls));
-        // the audio server panel is provided by a service provider
-        panel.addTab("Audio Server", AudioServerUIServices.createServerUI(realServer));
        	frame(panel, "Toot Transport Project");
         // add the source demo panel as a separate frame
 //        frame(new DemoSourcePanel(demoSourceControls), "Source Demo");

@@ -7,9 +7,11 @@ package uk.org.toot.demo;
 
 import java.awt.Container;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Observable;
+import java.util.Observer;
 import uk.org.toot.control.*;
 import uk.org.toot.swingui.miscui.SwingApplication;
+import uk.org.toot.swingui.audioui.serverui.*;
 import uk.org.toot.audio.mixer.*;
 import uk.org.toot.audio.mixer.automation.*;
 import uk.org.toot.audio.server.*;
@@ -30,10 +32,11 @@ abstract public class AbstractDemo
 {
     protected Transport transport;
     protected SingleTransportProject project;
-    protected Properties properties;
+    protected DemoProperties properties;
 
     protected AudioServer realServer;
     protected AudioServer server;
+    protected AudioServerConfiguration serverConfig;
 
     /**
      * @link aggregationByValue
@@ -92,6 +95,9 @@ abstract public class AbstractDemo
      *
      * i.e. the properties file overrides the defaults and the command line
 	 * overrides everything.
+	 * AudioServerChooser allows server properties to be reviewed/changed
+	 * prior to use.
+	 * If the server starts without exception properties should probably be saved.
      */
     protected void create(String[] args) {
         try {
@@ -102,22 +108,28 @@ abstract public class AbstractDemo
             project = new SingleTransportProject(transport);
             // load the demo properties
             properties = new DemoProperties(project.getApplicationPath());
+            // choose and configure and audio server
+            // modifies server and sample.rate properties
+            AudioServerChooser.showDialog(properties);
             // create the audio server
-//            realServer = new JavaSoundAudioServer(format);
             realServer = AudioServerServices.createServer(property("server"));
-/*            try {
-	            realServer.setSampleRate((float)intProperty("sample.rate", 44100));
-    	        realServer.setSampleSizeInBits(intProperty("sample.bits", 16));
-            } catch ( Exception e ) {
-                // e.printStackTrace();
-            } */
+            realServer.setSampleRate((float)intProperty("sample.rate", 44100));
             // hook it for non-real-time
             server = new NonRealTimeAudioServer(realServer);
-//            server = extendedServer;
             // hack the non real time audio server into the project 'manager'
             if ( server instanceof NonRealTimeAudioServer ) {
             	project.setNonRealTimeAudioServer((NonRealTimeAudioServer)server);
             }
+            serverConfig = AudioServerServices.createServerConfiguration(realServer);
+        	serverConfig.addObserver(new Observer() {
+        		public void update(Observable obs, Object obj) {
+        			System.out.println("Storing configuration");
+        			serverConfig.mergeInto(properties);
+        			properties.store();
+        		}
+        	});
+        	serverConfig.applyProperties(properties);
+
             // set the projects root
             String projectsRoot = property("projects.root");
             if ( projectsRoot != null ) {
@@ -193,7 +205,7 @@ abstract public class AbstractDemo
             // hook it for WAV export although not currently possible to export
 //            output = new TransportExportAudioProcessAdapter(output, format, "Mixer Main Bus", transport);
         	mixer.getMainBus().setOutputProcess(output);
-			mixer.getBus("Aux#2").setOutputProcess(new NullAudioProcess());
+//			mixer.getBus("Aux#2").setOutputProcess(new NullAudioProcess());
             int s = 1;
 
             if ( hasMultiTrack ) {

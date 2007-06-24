@@ -15,7 +15,7 @@ import uk.org.toot.swingui.audioui.serverui.*;
  * demonstration problem domain model, with the multi-track player and automated
  * mixer in separate tabs.
  */
-public class AudioServerTest extends AbstractDemo 
+public class AudioServerTest extends AbstractAudioDemo 
 {
     public AudioServerTest(String[] args) {
         super(args);

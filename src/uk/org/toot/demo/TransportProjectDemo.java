@@ -16,7 +16,7 @@ import javax.swing.JToolBar;
  * demonstration problem domain model, with the multi-track player and automated
  * mixer in separate tabs.
  */
-public class TransportProjectDemo extends AbstractDemo 
+public class TransportProjectDemo extends AbstractAudioDemo 
 {
     private JToolBar toolBar;
 

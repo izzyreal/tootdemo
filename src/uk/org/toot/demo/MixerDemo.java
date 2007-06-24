@@ -14,7 +14,7 @@ import uk.org.toot.audio.mixer.AudioMixer;
  * so-called FullMixerPanel will be used instead of the preferred
  * CompactMixerPanel.
  */
-public class MixerDemo extends AbstractDemo 
+public class MixerDemo extends AbstractAudioDemo 
 {
 	public MixerDemo(String[] args) {
         super(args);

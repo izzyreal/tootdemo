@@ -2,9 +2,9 @@ package uk.org.toot.demo;
 
 import javax.swing.JPanel;
 
-import uk.org.toot.pitch.LydianChromaticConceptScales;
+import uk.org.toot.pitch.Scales;
 
-import uk.org.toot.swingui.pitchui.KeyChooser;
+import uk.org.toot.swingui.pitchui.KeyChooserPanel;
 
 public class KeyChooserDemo extends AbstractDemo 
 {
@@ -14,12 +14,12 @@ public class KeyChooserDemo extends AbstractDemo
 	
 	@Override
 	protected void create(String[] args) {
-		LydianChromaticConceptScales.init();
+		Scales.LydianChromaticConcept.init();
 		createUI(args);
 	}
 
 	protected void createUI(String[] args) {
-        JPanel panel = new KeyChooser();
+        JPanel panel = new KeyChooserPanel();
         frame(panel, "Key Chooser");
 	}
 

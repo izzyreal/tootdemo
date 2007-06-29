@@ -2,9 +2,9 @@ package uk.org.toot.demo;
 
 import javax.swing.JPanel;
 
-import uk.org.toot.pitch.LydianChromaticConceptScales;
+import uk.org.toot.pitch.Scales;
 
-import uk.org.toot.swingui.pitchui.ChordChooser;
+import uk.org.toot.swingui.pitchui.ChordChooserPanel;
 
 public class ChordChooserDemo extends AbstractDemo 
 {
@@ -14,12 +14,12 @@ public class ChordChooserDemo extends AbstractDemo
 	
 	@Override
 	protected void create(String[] args) {
-		LydianChromaticConceptScales.init();
+		Scales.LydianChromaticConcept.init();
 		createUI(args);
 	}
 
 	protected void createUI(String[] args) {
-        JPanel panel = new ChordChooser();
+        JPanel panel = new ChordChooserPanel();
         frame(panel, "Chord Chooser");
 	}
 

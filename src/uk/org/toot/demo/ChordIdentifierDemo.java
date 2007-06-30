@@ -2,7 +2,7 @@ package uk.org.toot.demo;
 
 import javax.swing.JPanel;
 
-//import uk.org.toot.pitch.Scales;
+import uk.org.toot.pitch.Chords;
 
 import uk.org.toot.swingui.pitchui.ChordIdentifierPanel;
 
@@ -15,6 +15,7 @@ public class ChordIdentifierDemo extends AbstractDemo
 	@Override
 	protected void create(String[] args) {
 		//Scales.LydianChromaticConcept.init();
+		Chords.checkIdentifiability();
 		createUI(args);
 	}
 

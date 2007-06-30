@@ -1,6 +1,9 @@
 package uk.org.toot.demo;
 
+import java.awt.Color;
+
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import uk.org.toot.pitch.Scales;
 
@@ -21,6 +24,7 @@ public class ChordChooserDemo extends AbstractDemo
 	protected void createUI(String[] args) {
         JPanel panel = new ChordChooserPanel();
         frame(panel, "Chord Chooser");
+        UIManager.put("ToolTip.background", new Color(255, 255, 225));
 	}
 
 	/**

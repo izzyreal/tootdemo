@@ -5,9 +5,9 @@ import java.awt.Color;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import uk.org.toot.pitch.Scales;
 
-import uk.org.toot.swingui.pitchui.ChordChooserPanel;
+import uk.org.toot.swingui.tonalityui.ChordChooserPanel;
+import uk.org.toot.tonality.Scales;
 
 public class ChordChooserDemo extends AbstractDemo 
 {

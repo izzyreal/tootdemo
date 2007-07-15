@@ -2,9 +2,9 @@ package uk.org.toot.demo;
 
 import javax.swing.JPanel;
 
-import uk.org.toot.pitch.Scales;
 
-import uk.org.toot.swingui.pitchui.KeyChooserPanel;
+import uk.org.toot.swingui.tonalityui.KeyChooserPanel;
+import uk.org.toot.tonality.Scales;
 
 public class KeyChooserDemo extends AbstractDemo 
 {

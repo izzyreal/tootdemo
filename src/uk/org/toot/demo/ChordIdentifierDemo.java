@@ -2,9 +2,9 @@ package uk.org.toot.demo;
 
 import javax.swing.JPanel;
 
-import uk.org.toot.pitch.Chords;
 
-import uk.org.toot.swingui.pitchui.ChordIdentifierPanel;
+import uk.org.toot.swingui.tonalityui.ChordIdentifierPanel;
+import uk.org.toot.tonality.Chords;
 
 public class ChordIdentifierDemo extends AbstractDemo 
 {

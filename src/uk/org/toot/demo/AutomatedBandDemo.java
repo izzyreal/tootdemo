@@ -20,6 +20,7 @@ public class AutomatedBandDemo
 		band = new AutomatedBand();
 		band.setModulationDensity(0.50f);
 		band.setCycleOfFifthsDensity(0.33f);
+		band.setMaxKeys(5);
 		
 		DrumKitComposer kit = new DrumKitComposer("Drums", 0, 9);
 		band.addComposer(kit);

@@ -11,69 +11,81 @@ import java.io.File;
 
 public class AutomatedBandDemo 
 {
-	private AutomatedBand band;
-	private DrumKitComposer kit;
-	private TonalComposer bass;
-	private KeyboardComposer piano;
-	
 	private int ppq = 480;
+	private AutomatedBand band;
 	
 	public AutomatedBandDemo() {
 		Scales.LydianChromaticConcept.init();
+		
 		band = new AutomatedBand();
 		band.setModulationDensity(0.50f);
 		band.setCycleOfFifthsDensity(0.33f);
 		
-		kit = new DrumKitComposer("Drums", 0, 9);
+		DrumKitComposer kit = new DrumKitComposer("Drums", 0, 9);
 		band.addComposer(kit);
-		AbstractComposer ridm = kit.getKickComposer();
-		ridm.setDensity(0.60f);
-		ridm.setMinNoteLen(8);
-		ridm.setJamTiming(Timing.ODD_DOWNBEATS);
-		ridm = kit.getLeftHandComposer();
-		ridm.setDensity(0.40f);
-		ridm.setMinNoteLen(16);
-		ridm.setJamTiming(Timing.EVEN_DOWNBEATS);
-		ridm.setClearTiming(Timing.ODD_DOWNBEATS);
-		ridm = kit.getRightHandComposer();
-		ridm.setDensity(0.50f);
-		ridm.setMinNoteLen(16);
-		ridm.setJamTiming(Timing.ALL_UPBEATS);
-		ridm.setClearTiming(1);
 		
-		bass = new TonalComposer("Bass", 35, 0, 30, 43); // fretless bass
-		bass.setMelodyProbability(1.0f); // 100% melodic
-		bass.setRepeatPitchProbability(0.25f);
+		RhythmicComposer.Context ridmContext = new RhythmicComposer.Context();
+		ridmContext.setDensity(0.60f);
+		ridmContext.setMinNoteLen(8);
+		ridmContext.setJamTiming(Timing.ODD_DOWNBEATS);
+		kit.getKickComposer().setContext(ridmContext);
+		
+		ridmContext = new RhythmicComposer.Context();
+		ridmContext.setDensity(0.40f);
+		ridmContext.setMinNoteLen(16);
+		ridmContext.setJamTiming(Timing.EVEN_DOWNBEATS);
+		ridmContext.setClearTiming(Timing.ODD_DOWNBEATS);
+		kit.getLeftHandComposer().setContext(ridmContext);
+		
+		ridmContext.setDensity(0.50f);
+		ridmContext.setMinNoteLen(16);
+		ridmContext.setJamTiming(Timing.ALL_UPBEATS);
+		ridmContext.setClearTiming(1);
+		kit.getRightHandComposer().setContext(ridmContext);
+		
+		TonalComposer bass = new TonalComposer("Bass", 35, 0); // fretless bass
+		TonalComposer.Context bassContext = new TonalComposer.Context();
+		bassContext.setMelodyProbability(1.0f); // 100% melodic
+		bassContext.setRepeatPitchProbability(0.25f);
+		bassContext.setMinPitch(30);
+		bassContext.setMaxPitch(43);
+		bassContext.setMaxPitchChange(5);
+		bassContext.setDensity(0.7f);
+		bassContext.setMinNoteLen(8);
+		bassContext.setLevel(90);
+		bassContext.setLegato(0.9f);
+		bass.setContext(bassContext);
 		bass.setSwingRatio(1.3f);
-		bass.setMaxPitchChange(5);
-		bass.setDensity(0.7f);
-		bass.setMinNoteLen(8);
-		bass.setLevel(90);
-		bass.setLegato(0.9f);
 		band.addComposer(bass);
 		
-		piano = new KeyboardComposer("Piano", 0, 2); // acoustic grand piano
-		TonalComposer pianoLeftHand = piano.getLeftHandComposer();
-		pianoLeftHand.setRepeatPitchProbability(0.25f);
-		pianoLeftHand.setSwingRatio(1.3f);
-		pianoLeftHand.setMaxPitchChange(3); // odd numbers work best for tertian intervals
-		pianoLeftHand.setDensity(0.3f);
-		pianoLeftHand.setMinNoteLen(8);
-		pianoLeftHand.setLevel(80);
-		pianoLeftHand.setLegato(0.9f);
-		pianoLeftHand.setMinPitch(42);
-		pianoLeftHand.setMaxPitch(56);
-		TonalComposer pianoRightHand = piano.getRightHandComposer();
-		pianoRightHand.setMelodyProbability(0.75f); // melodic probability
-		pianoLeftHand.setRepeatPitchProbability(0.25f);
-		pianoRightHand.setSwingRatio(1.3f);
-		pianoRightHand.setMaxPitchChange(5);
-		pianoRightHand.setDensity(0.8f);
-		pianoRightHand.setMinNoteLen(8);
-		pianoRightHand.setLevel(80);
-		pianoRightHand.setLegato(0.9f);
-		pianoRightHand.setMinPitch(62); // slight overlap with left hand 9ths
-		pianoRightHand.setMaxPitch(78);
+		KeyboardComposer piano = new KeyboardComposer("Piano", 0, 2); // acoustic grand piano
+		
+		TonalComposer hand = piano.getLeftHandComposer();
+		TonalComposer.Context pianoContext = new TonalComposer.Context();
+		pianoContext.setRepeatPitchProbability(0.25f);
+		pianoContext.setMaxPitchChange(3); // odd numbers work best for tertian intervals
+		pianoContext.setDensity(0.3f);
+		pianoContext.setMinNoteLen(8);
+		pianoContext.setLevel(80);
+		pianoContext.setLegato(0.9f);
+		pianoContext.setMinPitch(42);
+		pianoContext.setMaxPitch(56);
+		hand.setContext(pianoContext);
+		hand.setSwingRatio(1.3f);
+		
+		hand = piano.getRightHandComposer();
+		pianoContext = new TonalComposer.Context();
+		pianoContext.setMelodyProbability(0.75f); // melodic probability
+		pianoContext.setRepeatPitchProbability(0.25f);
+		pianoContext.setMaxPitchChange(5);
+		pianoContext.setDensity(0.8f);
+		pianoContext.setMinNoteLen(8);
+		pianoContext.setLevel(80);
+		pianoContext.setLegato(0.9f);
+		pianoContext.setMinPitch(62); // slight overlap with left hand 9ths
+		pianoContext.setMaxPitch(78);
+		hand.setContext(pianoContext);
+		hand.setSwingRatio(1.3f);
 		band.addComposer(piano);
 	}
 

@@ -6,6 +6,7 @@
 package uk.org.toot.demo;
 
 import uk.org.toot.music.composition.*;
+import uk.org.toot.music.performance.*;
 import uk.org.toot.tonality.Scales;
 import java.io.File;
 import static uk.org.toot.midi.misc.GM.*;
@@ -23,25 +24,29 @@ public class AutomatedBandDemo
 		band.setCycleOfFifthsDensity(0.33f);
 		band.setMaxKeys(5);
 		
-		addDrumKitComposer(0, 9);
-		addBassComposer(35, 0); // fretless bass
-		addKeyboardComposer(0, 2); // acoustic grand piano
+		addDrumKitComposer(9, 0);
+		addBassComposer(0, 35); // fretless bass
+		addKeyboardComposer(2, 0); // acoustic grand piano
 	}
 
-	protected void addDrumKitComposer(int program, int channel) {
-		RhythmicComposer kickComposer = new RhythmicComposer("Kick", program, channel);
-		band.addComposer(kickComposer);
-		RhythmicComposer leftHandComposer = new RhythmicComposer("Drums Left", program, channel);
-		band.addComposer(leftHandComposer);
-		RhythmicComposer rightHandComposer = new RhythmicComposer("Drums Right", program, channel);
-		band.addComposer(rightHandComposer);
+	protected void addDrumKitComposer(int channel, int program) {
+		Instrument instrument = new Instrument(channel, program);
+		RhythmicComposer kickComposer = new RhythmicComposer();
+		Performer kick = new Performer("Kick", instrument);
+		band.add(kickComposer, kick);
+		RhythmicComposer leftHandComposer = new RhythmicComposer();
+		Performer left = new Performer("Drums Left", instrument);
+		band.add(leftHandComposer, left);
+		RhythmicComposer rightHandComposer = new RhythmicComposer();
+		Performer right = new Performer("Drums Right", instrument);
+		band.add(rightHandComposer, right);
 		
 		RhythmicComposer.Context ridmContext = new RhythmicComposer.SingleDrumContext(ACOUSTIC_BASS_DRUM);
 		ridmContext.setDensity(0.60f);
 		ridmContext.setMinNoteLen(8);
 		ridmContext.setJamTiming(Timing.ODD_DOWNBEATS);
 		kickComposer.setContext(ridmContext);
-		kickComposer.setSwingRatio(1.1f);
+		kick.setSwingRatio(1.1f);
 		
 		ridmContext = new RhythmicComposer.SingleDrumContext(ACOUSTIC_SNARE);
 		ridmContext.setDensity(0.40f);
@@ -49,7 +54,7 @@ public class AutomatedBandDemo
 		ridmContext.setJamTiming(Timing.EVEN_DOWNBEATS);
 		ridmContext.setClearTiming(Timing.ODD_DOWNBEATS);
 		leftHandComposer.setContext(ridmContext);
-		leftHandComposer.setSwingRatio(1.1f);
+		left.setSwingRatio(1.1f);
 		
 		ridmContext = new RhythmicComposer.DualDrumContext(
 				CLOSED_HI_HAT, 0.95f, OPEN_HI_HAT);
@@ -59,11 +64,13 @@ public class AutomatedBandDemo
 		ridmContext.setAccent(-24);
 		ridmContext.setAccentTiming(Timing.ALL_UPBEATS);
 		rightHandComposer.setContext(ridmContext);
-		rightHandComposer.setSwingRatio(1.1f);
+		right.setSwingRatio(1.1f);
 	}
 
-	protected void addBassComposer(int program, int channel) {
-		TonalComposer bass = new TonalComposer("Bass", program, channel); // fretless bass
+	protected void addBassComposer(int channel, int program) {
+		Instrument instrument = new Instrument(channel, program);
+		TonalComposer bassComposer = new TonalComposer();
+		Performer bass = new Performer("Bass", instrument);
 		TonalComposer.Context bassContext = new TonalComposer.Context();
 		bassContext.setMelodyProbability(1.0f); // 100% melodic
 		bassContext.setRepeatPitchProbability(0.25f);
@@ -74,16 +81,19 @@ public class AutomatedBandDemo
 		bassContext.setMinNoteLen(8);
 		bassContext.setLevel(90);
 		bassContext.setLegato(0.9f);
-		bass.setContext(bassContext);
+		bassComposer.setContext(bassContext);
 		bass.setSwingRatio(1.3f);
-		band.addComposer(bass);
+		band.add(bassComposer, bass);
 	}
 	
-	protected void addKeyboardComposer(int program, int channel) {
-		TonalComposer leftHandComposer = new TonalComposer("Keyboard Left", program, channel);
-		band.addComposer(leftHandComposer);
-		TonalComposer rightHandComposer = new TonalComposer("Keyboard Right", program, channel);
-		band.addComposer(rightHandComposer);
+	protected void addKeyboardComposer(int channel, int program) {
+		Instrument instrument = new Instrument(channel, program);
+		TonalComposer leftHandComposer = new TonalComposer();
+		Performer left = new Performer("Keyboard Left", instrument);
+		band.add(leftHandComposer, left);
+		TonalComposer rightHandComposer = new TonalComposer();
+		Performer right = new Performer("Keyboard Right", instrument);
+		band.add(rightHandComposer, right);
 
 		TonalComposer.Context pianoContext = new TonalComposer.Context();
 		pianoContext.setRepeatPitchProbability(0.25f);
@@ -95,7 +105,7 @@ public class AutomatedBandDemo
 		pianoContext.setMinPitch(42);
 		pianoContext.setMaxPitch(56);
 		leftHandComposer.setContext(pianoContext);
-		leftHandComposer.setSwingRatio(1.3f);
+		left.setSwingRatio(1.3f);
 		
 		pianoContext = new TonalComposer.Context();
 		pianoContext.setMelodyProbability(0.75f); // melodic probability
@@ -108,7 +118,7 @@ public class AutomatedBandDemo
 		pianoContext.setMinPitch(62); // slight overlap with left hand 9ths
 		pianoContext.setMaxPitch(78);
 		rightHandComposer.setContext(pianoContext);
-		rightHandComposer.setSwingRatio(1.3f);
+		right.setSwingRatio(1.3f);
 	}
 	
 	/**

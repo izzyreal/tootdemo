@@ -14,10 +14,6 @@ public abstract class AbstractDemo
 {
     protected DemoProperties properties;
 
-	public AbstractDemo(String[] args) {
-        create(args);
-    }
-
     protected abstract void create(String[] args);
 
     protected void waitForKeypress() {

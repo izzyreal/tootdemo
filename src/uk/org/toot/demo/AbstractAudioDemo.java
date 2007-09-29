@@ -10,8 +10,9 @@ import java.util.Observer;
 import uk.org.toot.control.*;
 import uk.org.toot.swingui.audioui.serverui.*;
 import uk.org.toot.audio.mixer.*;
-import uk.org.toot.audio.mixer.automation.*;
 import uk.org.toot.audio.server.*;
+import uk.org.toot.midi.core.ConnectedMidiSystem;
+import uk.org.toot.midi.core.LegacyDevices;
 import uk.org.toot.project.*;
 import uk.org.toot.transport.*;
 import java.io.File;
@@ -20,7 +21,7 @@ import javax.swing.*;
 import java.awt.Color;
 
 /**
- * AbstractDemo creates a problem domain containing an automated mixer and
+ * AbstractAudioDemo creates a problem domain containing an automated mixer and
  * multi-track player with common transport which is extended by MixerDemo
  * and TransportProjectDemo to provide different user interfaces of the same
  * problem domain.
@@ -47,11 +48,12 @@ abstract public class AbstractAudioDemo extends AbstractDemo
     protected MultiTrackControls multiTrackControls;
     protected MixerControls mixerControls;
 
-    protected DemoSourceControls demoSourceControls;
-
-	public AbstractAudioDemo(String[] args) {
-        super(args);
-    }
+    protected ProjectMidiSequencer sequencer;
+    protected boolean hasSequencer = true;
+    
+	protected ConnectedMidiSystem midiSystem;
+	
+//    protected DemoSourceControls demoSourceControls;
 
     /*
      * Each creational property is obtained from one of several sources,
@@ -96,6 +98,16 @@ abstract public class AbstractAudioDemo extends AbstractDemo
         	});
         	serverConfig.applyProperties(properties);
 
+/*        	System.out.println("Inputs:");
+        	for ( String in : server.getAvailableInputNames() ) {
+        		System.out.println(in);
+        	}
+        	System.out.println("Outputs:");
+        	for ( String in : server.getAvailableOutputNames() ) {
+        		System.out.println(in);
+        	}
+ */
+        	
             // set the projects root
             String projectsRoot = property("projects.root");
             if ( projectsRoot != null ) {
@@ -130,7 +142,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
         	MixerControlsFactory.createChannelStrips(mixerControls, nMixerChans);
             // add snapshot automation of the mixer controls
 			MixerControlsSnapshotAutomation snapshotAutomation =
-                new SingleProjectMidiFileSnapshotAutomation(mixerControls, project);
+                new ProjectMidiFileSnapshotAutomation(mixerControls, project);
             mixerControls.setSnapshotAutomation(snapshotAutomation);
             // add dynamic automation of the mixer controls
 //			MixerControlsDynamicAutomation dynamicAutomation =
@@ -153,6 +165,16 @@ abstract public class AbstractAudioDemo extends AbstractDemo
             compoundAudioClient.add(mixer);
             server.setClient(compoundAudioClient);
 
+            if ( hasSequencer ) {
+            	sequencer = new ProjectMidiSequencer(project);
+            	// ProjectMidiSystem must be created after the sequencer
+            	// so that it can open connections after the sequencer
+            	// has updated its ports for a new project
+        		midiSystem = new ProjectMidiSystem(project);
+        		LegacyDevices.installPlatformPorts(midiSystem);
+        		midiSystem.addMidiDevice(sequencer);
+            }
+            
 			createUI(args);
     	    try {
         	    Thread.sleep(1000);
@@ -188,9 +210,14 @@ abstract public class AbstractAudioDemo extends AbstractDemo
             mixer.getStrip(demoSourceStripName).setInputProcess(dsp); */
 
             // create an input connected to the next available strip
-            String inputStripName = String.valueOf(s++);
-            mixer.getStrip(inputStripName).setInputProcess(
-                server.openAudioInput(property("main.input"), "Line In"));
+        	String lineName = "Line In";
+            try {
+            	String inputStripName = String.valueOf(s++);
+            	mixer.getStrip(inputStripName).setInputProcess(
+            			server.openAudioInput(property("main.input"), lineName));
+            } catch ( Exception e ) {
+            	System.err.println("Failed to open "+lineName);
+            }
 	}
 
     protected void createUI(String[] args) {

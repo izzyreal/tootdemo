@@ -21,7 +21,7 @@ public class MultiTrackControls extends CompoundControl
         super(2, "MultiTrack"); // !!! !!! MIXER is 1 !!! !!! !!!
         trackCount = nTracks;
         for ( int i = 0; i < trackCount; i++ ) {
-//            add(new MeterControls(2, String.valueOf(i+1)));
+//            add(new MeterControls(ChannelFormat.STEREO, String.valueOf(i+1)));
 			createTrackControls(2, i); // !!! !!!
         }
     }

@@ -7,7 +7,7 @@ package uk.org.toot.demo;
 
 import uk.org.toot.music.composition.*;
 import uk.org.toot.music.performance.*;
-import uk.org.toot.tonality.Scales;
+import uk.org.toot.music.tonality.Scales;
 import java.io.File;
 import static uk.org.toot.midi.misc.GM.*;
 

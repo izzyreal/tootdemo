@@ -7,14 +7,10 @@ import javax.swing.UIManager;
 
 
 import uk.org.toot.swingui.tonalityui.ChordChooserPanel;
-import uk.org.toot.tonality.Scales;
+import uk.org.toot.music.tonality.Scales;
 
 public class ChordChooserDemo extends AbstractDemo 
 {
-	public ChordChooserDemo(String[] args) {
-		super(args);
-	}
-	
 	@Override
 	protected void create(String[] args) {
 		Scales.LydianChromaticConcept.init();
@@ -31,7 +27,7 @@ public class ChordChooserDemo extends AbstractDemo
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new ChordChooserDemo(args);
+		(new ChordChooserDemo()).create(args);
 	}
 
 }

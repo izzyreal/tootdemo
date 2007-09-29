@@ -5,6 +5,8 @@
 
 package uk.org.toot.demo;
 
+//import java.beans.XMLEncoder;
+//import java.io.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -17,10 +19,11 @@ import javax.sound.midi.InvalidMidiDataException;
 import uk.org.toot.midi.message.*;
 import uk.org.toot.music.composition.BarComposer;
 import uk.org.toot.music.performance.*;
-import uk.org.toot.tonality.*;
+import uk.org.toot.music.*;
+import uk.org.toot.music.tonality.*;
 
 /**
- * An AutomatedBand is a composition of AutomatedComposer.
+ * An AutomatedBand is a composition of BarComposer / Performer pairings.
  * It can render a Sequence and a MIDI FIle.
  * @author st
  *
@@ -38,6 +41,7 @@ public class AutomatedBand
 	private List<Key> keyList;
 	private int keyIndex = -1;
 	
+	private Music music;
 	private boolean rendering = false;
 	private Key key = new Key();
 	private float modulationDensity = 0.5f;
@@ -52,6 +56,7 @@ public class AutomatedBand
 		performers = new java.util.ArrayList<Performer>();
 		keyList = new java.util.ArrayList<Key>();
 //		scaleNames = Scales.getScaleNames();
+		music = new Music();
 	}
 	
 	public void add(BarComposer composer, Performer performer) {
@@ -74,12 +79,14 @@ public class AutomatedBand
 	
 	public Sequence renderSequence(int nbars, int ppq) 
 		throws InvalidMidiDataException {
+		Music.Section section = music.createSection("All", nbars);
 		rendering = true;
-		Sequence sequence = null;
-		sequence = new Sequence(Sequence.PPQ, ppq);
+		Sequence sequence = new Sequence(Sequence.PPQ, ppq);
 		sequence.createTrack(); // master track
 		// create a Track for each composer
 		List<Track> tracks = new java.util.ArrayList<Track>();
+		Track masterTrack = sequence.createTrack();
+		tracks.add(masterTrack);
 		for ( int c = 0; c < performers.size(); c++) {
 			Performer performer = performers.get(c);
 			Track t = sequence.createTrack();
@@ -97,23 +104,50 @@ public class AutomatedBand
 		// for each bar
 		for ( int bar = 0; bar < nbars; bar++) {
 			barTick += 4 * ppq;
-			changeKey();
+			if ( changeKey() ) {
+				// write key to mastertrack somehow
+				// and to music section
+				int keyChange = KeyCoding.create(0, key.getRoot(), key.getScale().getIntervalsAsInt());
+				int[] keyChanges = new int[1];
+				keyChanges[0] = keyChange;
+				section.setKeyChanges(bar, keyChanges);
+			}
 			// for each composer/performer/track
 			for ( int c = 0; c < composers.size(); c++) {
 				BarComposer composer = composers.get(c);
 				Track track = tracks.get(c);
 				Performer performer = performers.get(c);
-				performer.renderBar(composer.composeBar(key), track, barTick, 4 * ppq);
+				int[] notes = composer.composeBar(key);
+				section.setNotes(performer.getName(), bar, notes); // !!! TODO
+				performer.renderBar(notes, track, barTick, 4 * ppq);
 			}
 //			System.out.print(bar+"\r");
 		}
-
+/*		System.out.println(section.getKeyChangeCount()+ " Key changes");
+		for ( int k = 0; k < section.getKeyChangeCount(); k++) {
+			int keyChange = section.getKeyChange(k);
+			int bar = KeyCoding.getBar(keyChange);
+			int beat = KeyCoding.getBeat(keyChange);
+			int root = KeyCoding.getRoot(keyChange);
+			System.out.println(bar+"."+beat+": "+Pitch.className(root));
+		} */
+		music.list();
+/*		try {
+		XMLEncoder e = new XMLEncoder(
+                new BufferedOutputStream(
+                    new FileOutputStream("Test.xml")));
+		e.writeObject(music);
+		e.close();
+		} catch ( Exception e ) {
+			e.printStackTrace();
+		} */
 		rendering = false;
 		return sequence;
 	}
 	
-	protected void changeKey() {
-		if ( Math.random() > modulationDensity ) return;
+	protected boolean changeKey() {
+		if ( Math.random() > modulationDensity ) return false;
+		Key previousKey = key;
 		if ( (Math.random() < keyReturnProbability && keyList.size() > 1) ||
 				keyList.size() >= maxKeys ) {
 			if ( keyIndex == 0 ) {
@@ -124,25 +158,38 @@ public class AutomatedBand
 				keyIndex += Math.random() > 0.5f ? 1 : -1;
 			}
 			key = keyList.get(keyIndex);
-//			System.out.println(key+" reused from "+keyIndex);
-			return;
+			System.out.println(key+" reused from "+keyIndex);
+			return true;
 		}
 /*		if ( Math.random() < scaleDensity ) {
 			key.setScale(Scales.getScale(scaleNames.get((int)(Math.random()*4))));
 		} else */
 		// !!! weak indices, what about 8 and more notes scales
 		if ( Math.random() < cycleOfFifthsDensity ) {
-			key = new Key(Math.random() < 0.5 ? key.getNote(4-1) : key.getNote(5-1));
+			if ( Math.random() < 0.5 ) {
+				key = new Key(key.getNote(4-1));
+				System.out.println(previousKey+" => "+key+" (Sub Dominant)");
+			} else {
+				key = new Key(key.getNote(5-1));
+				System.out.println(previousKey+" => "+key+" (Dominant)");
+			}
 		} else {
-			key = new Key(Math.random() < 0.5 ? key.getNote(7-1) : key.getNote(1-1));
+			if ( Math.random() < 0.5 ) {
+				key = new Key(key.getNote(7-1));
+				System.out.println(previousKey+" => "+key+" (Leading Tone)");
+			} else {
+				key = new Key(key.getNote(2-1));
+				System.out.println(previousKey+" => "+key+" (Supertonic)");
+			}
 		}
 		if ( keyList.contains(key) ) {
 			keyIndex = keyList.indexOf(key);
-			return;
+			return true;
 		}
 		keyList.add(key);
 		keyIndex = keyList.size()-1;
-//		System.out.println(key+" added at "+keyIndex);
+		System.out.println(key+" added at "+keyIndex);
+		return true;
 	}
 
 	/**

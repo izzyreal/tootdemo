@@ -4,14 +4,10 @@ import javax.swing.JPanel;
 
 
 import uk.org.toot.swingui.tonalityui.ChordIdentifierPanel;
-import uk.org.toot.tonality.Chords;
+import uk.org.toot.music.tonality.Chords;
 
 public class ChordIdentifierDemo extends AbstractDemo 
 {
-	public ChordIdentifierDemo(String[] args) {
-		super(args);
-	}
-	
 	@Override
 	protected void create(String[] args) {
 		//Scales.LydianChromaticConcept.init();
@@ -28,7 +24,7 @@ public class ChordIdentifierDemo extends AbstractDemo
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new ChordIdentifierDemo(args);
+		(new ChordIdentifierDemo()).create(args);
 	}
 
 }

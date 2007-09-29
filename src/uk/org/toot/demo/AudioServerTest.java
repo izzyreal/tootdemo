@@ -17,17 +17,13 @@ import uk.org.toot.swingui.audioui.serverui.*;
  */
 public class AudioServerTest extends AbstractAudioDemo 
 {
-    public AudioServerTest(String[] args) {
-        super(args);
-    }
-
     protected void createUI(String[] args) {
         super.createUI(args);
         frame(AudioServerUIServices.createServerUI(realServer, null), "Audio Server Test");
     }
 
     public static void main(String[] args) {
-        new AudioServerTest(args);
+        (new AudioServerTest()).create(args);
     }
 
     protected void create(String[] args) {

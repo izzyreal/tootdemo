@@ -16,8 +16,7 @@ import uk.org.toot.audio.mixer.AudioMixer;
  */
 public class MixerDemo extends AbstractAudioDemo 
 {
-	public MixerDemo(String[] args) {
-        super(args);
+	public MixerDemo() {
         transport.play();
     }
 
@@ -51,6 +50,6 @@ public class MixerDemo extends AbstractAudioDemo
     }
 
     public static void main(String[] args) {
-        new MixerDemo(args);
+        (new MixerDemo()).create(args);
     }
 }

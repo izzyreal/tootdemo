@@ -41,7 +41,7 @@ public class AutomatedBand
 	private List<Key> keyList;
 	private int keyIndex = -1;
 	
-	private Music music;
+//	private Music music;
 	private boolean rendering = false;
 	private Key key = new Key();
 	private float modulationDensity = 0.5f;
@@ -56,7 +56,7 @@ public class AutomatedBand
 		performers = new java.util.ArrayList<Performer>();
 		keyList = new java.util.ArrayList<Key>();
 //		scaleNames = Scales.getScaleNames();
-		music = new Music();
+//		music = new Music();
 	}
 	
 	public void add(BarComposer composer, Performer performer) {
@@ -71,15 +71,15 @@ public class AutomatedBand
 		return rendering;
 	}
 	
-	public void renderFile(int nbars, int ppq, File file) 
+	public void renderFile(int nbars, int ppq, File file, File dir) 
 		throws IOException, InvalidMidiDataException {
-		Sequence sequence = renderSequence(nbars, ppq);
+		Sequence sequence = renderSequence(nbars, ppq, dir);
 		MidiSystem.write(sequence, 1, file);
 	}
 	
-	public Sequence renderSequence(int nbars, int ppq) 
+	public Sequence renderSequence(int nbars, int ppq, File dir) 
 		throws InvalidMidiDataException {
-		Music.Section section = music.createSection("All", nbars);
+//		Music.Section section = music.createSection("All", nbars);
 		rendering = true;
 		Sequence sequence = new Sequence(Sequence.PPQ, ppq);
 		sequence.createTrack(); // master track
@@ -107,10 +107,10 @@ public class AutomatedBand
 			if ( changeKey() ) {
 				// write key to mastertrack somehow
 				// and to music section
-				int keyChange = KeyCoding.create(0, key.getRoot(), key.getScale().getIntervalsAsInt());
-				int[] keyChanges = new int[1];
-				keyChanges[0] = keyChange;
-				section.setKeyChanges(bar, keyChanges);
+//				int keyChange = KeyCoding.create(0, key.getRoot(), key.getScale().getIntervalsAsInt());
+//				int[] keyChanges = new int[1];
+//				keyChanges[0] = keyChange;
+//				section.setKeyChanges(bar, keyChanges);
 			}
 			// for each composer/performer/track
 			for ( int c = 0; c < composers.size(); c++) {
@@ -118,7 +118,7 @@ public class AutomatedBand
 				Track track = tracks.get(c);
 				Performer performer = performers.get(c);
 				int[] notes = composer.composeBar(key);
-				section.setNotes(performer.getName(), bar, notes); // !!! TODO
+//				section.setNotes(performer.getName(), bar, notes); // !!! TODO
 				performer.renderBar(notes, track, barTick, 4 * ppq);
 			}
 //			System.out.print(bar+"\r");
@@ -131,15 +131,21 @@ public class AutomatedBand
 			int root = KeyCoding.getRoot(keyChange);
 			System.out.println(bar+"."+beat+": "+Pitch.className(root));
 		} */
-		music.list();
+//		music.list();
+//		File musicFile = new File(dir, "abdemo.music");
+		// save music file
+//		try {
+//			MusicSerialization.save(music, musicFile);
+//		} catch ( Exception e ) {
+//			e.printStackTrace();
+//		}
+		// test reload of music file
 /*		try {
-		XMLEncoder e = new XMLEncoder(
-                new BufferedOutputStream(
-                    new FileOutputStream("Test.xml")));
-		e.writeObject(music);
-		e.close();
+			System.out.println("Reloading serialized music file");
+			Music musicReload = MusicSerialization.load(musicFile);
+			musicReload.list();
 		} catch ( Exception e ) {
-			e.printStackTrace();
+			e.printStackTrace();			
 		} */
 		rendering = false;
 		return sequence;

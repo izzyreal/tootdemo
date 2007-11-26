@@ -126,9 +126,9 @@ public class AutomatedBandDemo
 	 * @param nbars the number of bars of 4/4 to compose
 	 * @param file the standard MIDI file
 	 */
-	public void compose(int nbars, File file) {
+	public void compose(int nbars, File file, File dir) {
 		try {
-			band.renderFile(nbars, ppq, file);
+			band.renderFile(nbars, ppq, file, dir);
 		} catch ( Exception e) {
 			e.printStackTrace();
 		}
@@ -141,6 +141,6 @@ public class AutomatedBandDemo
         baseDir.mkdirs();
         String filename = "abdemo.mid";
         File file = new File(baseDir, filename);
-		demo.compose(128, file);
+		demo.compose(128, file, baseDir);
 	}
 }

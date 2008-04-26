@@ -5,13 +5,16 @@
 
 package uk.org.toot.demo;
 
-import uk.org.toot.swingui.midiui.MidiConnectionMap;
+import uk.org.toot.swingui.midiui.MidiConnectionView;
 import uk.org.toot.swingui.midixui.controlui.neckui.NecksView;
 import uk.org.toot.swingui.projectui.*;
+import uk.org.toot.swingui.synthui.SynthRackPanel;
 import uk.org.toot.swingui.audioui.mixerui.*;
 import uk.org.toot.swingui.audioui.serverui.*;
+import uk.org.toot.swingui.controlui.CompoundControlPanel;
+import uk.org.toot.swingui.controlui.ControlPanelFactory;
 
-import javax.swing.JPanel;
+//import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 /**
@@ -26,23 +29,37 @@ public class TransportProjectDemo extends AbstractAudioDemo
     protected void createUI(String[] args) {
         toolBar = new JToolBar();
         super.createUI(args);
+        if ( hasAudio ) {
         // the audio server panel is provided by a service provider
         toolBar.add(new AudioServerUIButton(AudioServerUIServices.createServerUI(realServer, serverConfig)));
-        SingleTransportProjectPanel panel = new SingleTransportProjectPanel(project, toolBar);
-        if ( hasMultiTrack ) {
-        	panel.addTab("MultiTrack", new MultiTrackPanel(multiTrackControls));
         }
-        panel.addTab("Audio Mixer", new CompactMixerPanel(mixerControls));
-       	frame(panel, "Toot Transport Project");
-       	if ( hasSequencer ) {
-            JPanel midiConnectionPanel = new MidiConnectionMap(midiSystem);
-            JPanel necksPanel = new NecksView(midiSystem);
-            frame(midiConnectionPanel, "Midi Connection Map");
-            frame(necksPanel, "Necks View");
-       		
+        SingleTransportProjectPanel panel = new SingleTransportProjectPanel(project, toolBar);
+
+        if ( hasMidi ) {
+            panel.addTab("Necks", new NecksView(midiSystem));
+            panel.addTab("MIDI Patchbay", new MidiConnectionView(midiSystem));
+            panel.addTab("Sequencer", new MidiSequencerPanel(sequencer, midiSystem));
        	}
+        if ( hasAudio ) {
+        	if ( hasMidi ) {
+        		panel.addTab("Synths", new SynthRackPanel(synthRackControls));
+        	}
+        	if ( hasMultiTrack ) {
+        		panel.addTab("MultiTrack", new MultiTrackPanel(multiTrackControls));
+        	}
+        	panel.addTab("Audio Mixer", new CompactMixerPanel(mixerControls));
+        	if ( hasMidi ) {
+        		panel.addTab("Synth", 
+        				new CompoundControlPanel(exampleSynthControls, 1, null,
+        						new ControlPanelFactory() {
+        					protected boolean canEdit() { return true; }
+        				}, true, true)
+        		);
+        	}
         // add the source demo panel as a separate frame
 //        frame(new DemoSourcePanel(demoSourceControls), "Source Demo");
+        }
+       	frame(panel, "Toot Transport Project");
 		project.openProject("default");
     }
 

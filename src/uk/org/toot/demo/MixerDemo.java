@@ -1,7 +1,7 @@
 // Copyright (C) 2006 Steve Taylor.
-// Distributed under the Toot Software License, Version 1.0. (See
-// accompanying file LICENSE_1_0.txt or copy at
-// http://www.toot.org/LICENSE_1_0.txt)
+// Distributed under under the terms of the GNU General Public License as
+// published by the Free Software Foundation; either version 2 of the License,
+// or (at your option) any later version.
 
 package uk.org.toot.demo;
 
@@ -25,7 +25,7 @@ public class MixerDemo extends AbstractAudioDemo
         super.create(args);
     }
 
-    protected void connect(AudioMixer mixer) throws Exception {
+    protected int connect(AudioMixer mixer) throws Exception {
         super.connect(mixer);
         int s = 2;
         AudioProcess p;
@@ -35,6 +35,7 @@ public class MixerDemo extends AbstractAudioDemo
     		p = new SilentInputAudioProcess(ChannelFormat.STEREO, "S"+(1+i));
        	    mixer.getStrip(String.valueOf(s++)).setInputProcess(p);
         }
+   	    return s;
     }
 
     protected void createUI(String[] args) {

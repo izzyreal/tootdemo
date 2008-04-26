@@ -6,6 +6,8 @@
 package uk.org.toot.demo;
 
 import uk.org.toot.project.*;
+import uk.org.toot.midi.sequence.Midi;
+import uk.org.toot.midi.sequence.MidiSequence;
 import uk.org.toot.midi.sequencer.MidiSequencer;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
@@ -24,16 +26,24 @@ public class ProjectMidiSequencer extends MidiSequencer
             		File path = new File(project.getCurrentProjectPath(), "midi");
             		File seqfile = new File(path, "sequence.mid");
             		if ( !seqfile.exists() ) return;
-//            		System.out.println(seqfile.getPath());
             		Sequence sequence = MidiSystem.getSequence(seqfile);
-            		setSequence(sequence);
+            		setMidiSequence(new MidiSequence(Midi.unMix(sequence)));
             	} catch ( Exception e) {
             		e.printStackTrace();
             		System.out.println("Failed to open project sequence");
             	}
             }
             public void save() {
-                // ???
+            	try {
+            		File path = new File(project.getCurrentProjectPath(), "midi");
+            		File seqfile = new File(path, "sequence.mid");
+//            		if ( seqfile.exists() ) return;
+            		Sequence sequence = getMidiSequence();
+            		MidiSystem.write(sequence, 1, seqfile);
+            	} catch ( Exception e) {
+            		e.printStackTrace();
+            		System.out.println("Failed to save project sequence");
+            	}
             }
         };
         // TODO figure out if and when these should be removed
@@ -45,5 +55,9 @@ public class ProjectMidiSequencer extends MidiSequencer
         	e.printStackTrace();
         	System.err.println("Failed to open Sequencer");
         }
+    }
+    
+    public SingleTransportProject getProject() {
+    	return project;
     }
 }

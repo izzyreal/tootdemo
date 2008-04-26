@@ -30,7 +30,7 @@ public class ProjectMidiSystem extends DefaultConnectedMidiSystem
             public void save() {
             	try {
             		File connfile = getConnectionFile();
-//            		if ( !connfile.exists() ) return;
+//            		if ( connfile.exists() ) return;
             		saveConnections(connfile);
             	} catch ( Exception e) {
             		System.out.println("Failed to save project midi connections");

@@ -113,11 +113,14 @@ public class AutomatedBand
 		long barTick = 0;
 		// for each bar
 		for ( int bar = 0; bar < nbars; bar++) {
+			barContext.reset();
 			if ( changeKey() ) {
 				barContext.setKeys(keyChanges);
 				barContext.setKeyTimes(keyChangeTimes);
 				// write key to mastertrack somehow
 				System.out.println((1+bar)+": "+keyChanges[0]);
+			} else {
+//				System.out.println((1+bar)+": ");
 			}
 			// for each composer/performer/track
 			for ( int c = 0; c < composers.size(); c++) {

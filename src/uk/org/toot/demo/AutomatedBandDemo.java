@@ -22,8 +22,8 @@ public class AutomatedBandDemo
 		
 		band = createBand();
 		
-		addBassComposer(0, 35, 0); // fretless bass
 		addKeyboardComposer(2, 0, 0); // acoustic grand piano
+		addBassComposer(0, 35, 0); // fretless bass
 	}
 
 	protected AutomatedBand createBand() {
@@ -31,13 +31,13 @@ public class AutomatedBandDemo
 		band.setModulationDensity(0.5f);
 		band.setCycleOfFifthsDensity(0.33f);
 		band.setMaxKeys(5);
-		band.getBarContext().setMeter(MeterCoding.createMeter(5, 4));
+		band.getBarContext().setMeter(MeterCoding.createMeter(4, 4));
 		return band;
 	}
 	
 	protected void addBassComposer(int channel, int program, int variation) {
 		Instrument instrument = new Instrument(channel, program);
-		TonalComposer bassComposer = new TonalComposer();
+		TonalComposer bassComposer = new TonalComposer("Bass");
 		Performer bass = new Performer("Bass", instrument);
 		TonalComposer.Context bassContext = new TonalComposer.Context();
 		bassContext.setTimingStrategy(
@@ -57,10 +57,10 @@ public class AutomatedBandDemo
 	
 	protected void addKeyboardComposer(int channel, int program, int variation) {
 		Instrument instrument = new Instrument(channel, program);
-		TonalComposer leftHandComposer = new TonalComposer();
+		TonalComposer leftHandComposer = new TonalComposer("Keys Left");
 		Performer left = new Performer("Keys Left", instrument);
 		band.add(leftHandComposer, left);
-		TonalComposer rightHandComposer = new TonalComposer();
+		TonalComposer rightHandComposer = new TonalComposer("Keys Right");
 		Performer right = new Performer("Keys Right", instrument);
 		band.add(rightHandComposer, right);
 

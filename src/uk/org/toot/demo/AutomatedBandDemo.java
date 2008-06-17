@@ -43,7 +43,6 @@ public class AutomatedBandDemo
 		bassContext.setTimingStrategy(
 				new ConventionalTimingStrategy(0.66f, Timing.EIGHTH_NOTE, 0.66f));
 		bassContext.setMelodyProbability(1.0f); // 100% melodic
-		bassContext.setRepeatPitchProbability(0.25f); // was 0.33f
 		bassContext.setMinPitch(30);
 		bassContext.setMaxPitch(43);
 		bassContext.setMaxPitchChange(7);
@@ -66,9 +65,8 @@ public class AutomatedBandDemo
 
 		TonalComposer.Context pianoContext = new TonalComposer.Context();
 		pianoContext.setTimingStrategy(
-				new ConventionalTimingStrategy(0.3f, Timing.QUARTER_NOTE, 0.3f));
+				new ConventionalTimingStrategy(0.25f, Timing.QUARTER_NOTE, 0.50f));
 		pianoContext.setTertianProbability(0.5f);
-		pianoContext.setRepeatPitchProbability(0.25f);
 		pianoContext.setMaxPitchChange(3); // odd numbers work best for tertian intervals
 		pianoContext.setLevel(75);
 		pianoContext.setLevelDeviation(8);
@@ -79,13 +77,12 @@ public class AutomatedBandDemo
 		left.setSwingRatio(1.2f);
 		
 		pianoContext = new TonalComposer.Context();
-		JazzyTimingStrategy.Context timingContext = new JazzyTimingStrategy.Context(0.25f);
+		JazzyTimingStrategy.Context timingContext = new JazzyTimingStrategy.Context(0.33f);
 		timingContext.setProbability(Timing.SIXTEENTH_NOTE, 0f); // no sixteenths
 		pianoContext.setTimingStrategy(
 				new JazzyTimingStrategy(timingContext));
 		pianoContext.setMaxPoly(3);
 		pianoContext.setMelodyProbability(0.8f); // melodic probability, was 0.75f
-		pianoContext.setRepeatPitchProbability(0.25f);
 		pianoContext.setMaxPitchChange(5);
 		pianoContext.setLevel(80);
 		pianoContext.setLevelDeviation(12);

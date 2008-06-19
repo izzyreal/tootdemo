@@ -35,11 +35,13 @@ public class ProjectMidiSequencer extends MidiSequencer
             }
             public void save() {
             	try {
-            		File path = new File(project.getCurrentProjectPath(), "midi");
-            		File seqfile = new File(path, "sequence.mid");
-//            		if ( seqfile.exists() ) return;
-            		Sequence sequence = getMidiSequence();
-            		MidiSystem.write(sequence, 1, seqfile);
+        			Sequence sequence = getMidiSequence();
+            		if ( sequence != null ) {
+            			File path = new File(project.getCurrentProjectPath(), "midi");
+            			File seqfile = new File(path, "sequence.mid");
+//            			if ( seqfile.exists() ) return;
+            			MidiSystem.write(sequence, 1, seqfile);
+            		}
             	} catch ( Exception e) {
             		e.printStackTrace();
             		System.out.println("Failed to save project sequence");

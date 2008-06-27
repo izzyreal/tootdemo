@@ -226,6 +226,19 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 		}
 	}
 
+	// the opposite of create()
+	protected void dispose() {
+		if ( hasMidi ) {
+			midiSystem.close(); // close all open midi devices
+		}
+		
+		if ( hasAudio ) {
+			server.stop();
+//			server.close(); // close all open audio devices
+		}
+		System.exit(0);
+	}
+	
 	protected int connect(AudioMixer mixer) throws Exception {
 		
 		// connect an output to the main mixer bus

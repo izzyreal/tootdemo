@@ -33,7 +33,12 @@ public class TransportProjectDemo extends AbstractAudioDemo
         // the audio server panel is provided by a service provider
         toolBar.add(new AudioServerUIButton(AudioServerUIServices.createServerUI(realServer, serverConfig)));
         }
-        SingleTransportProjectPanel panel = new SingleTransportProjectPanel(project, toolBar);
+        SingleTransportProjectPanel panel = new SingleTransportProjectPanel(project, toolBar) {
+        	protected void dispose() {
+        		super.dispose();
+        		TransportProjectDemo.this.dispose();
+        	}
+        };
 
         if ( hasMidi ) {
             panel.addTab("Necks", new NecksView(midiSystem));

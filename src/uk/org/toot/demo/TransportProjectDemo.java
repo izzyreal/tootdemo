@@ -60,6 +60,12 @@ public class TransportProjectDemo extends AbstractAudioDemo
         					protected boolean canEdit() { return true; }
         				}, true, true)
         		);
+        		panel.addTab("Synth 2", 
+        				new CompoundControlPanel(example2SynthControls, 1, null,
+        						new ControlPanelFactory() {
+        					protected boolean canEdit() { return true; }
+        				}, true, true)
+        		);
         	}
         // add the source demo panel as a separate frame
 //        frame(new DemoSourcePanel(demoSourceControls), "Source Demo");

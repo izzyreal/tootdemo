@@ -10,6 +10,7 @@ import java.util.Observer;
 import uk.org.toot.control.*;
 import uk.org.toot.swingui.audioui.serverui.*;
 import uk.org.toot.synth.example1.*;
+import uk.org.toot.synth.example2.*;
 import uk.org.toot.audio.mixer.*;
 import uk.org.toot.audio.server.*;
 import uk.org.toot.midi.core.ConnectedMidiSystem;
@@ -59,6 +60,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	protected SynthRack synthRack;
 	protected SynthRackControls synthRackControls;
 	protected ExampleSynthControls exampleSynthControls;
+	protected Example2SynthControls example2SynthControls;
 	
 //	protected DemoSourceControls demoSourceControls;
 
@@ -190,6 +192,15 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 					synthRackControls.add(0, 0, exampleSynthControls);
 					// get the provided synth channel
 					SynthChannel synthChannel = synthRack.getMidiSynths().get(0).getChannels()[0];
+					// connect it to the next unsused mixer channel
+					mixer.getStrip(String.valueOf(s++)).setInputProcess(synthChannel);
+
+					// and example synth channel controls for testing
+					example2SynthControls = new Example2SynthControls("ExSyn2");
+					// add to the first synth, first channel, using SPI for synth channel
+					synthRackControls.add(0, 1, example2SynthControls);
+					// get the provided synth channel
+					synthChannel = synthRack.getMidiSynths().get(0).getChannels()[1];
 					// connect it to the next unsused mixer channel
 					mixer.getStrip(String.valueOf(s++)).setInputProcess(synthChannel);
 				}

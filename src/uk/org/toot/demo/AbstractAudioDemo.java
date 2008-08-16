@@ -9,7 +9,6 @@ import java.util.Observable;
 import java.util.Observer;
 import uk.org.toot.control.*;
 import uk.org.toot.swingui.audioui.serverui.*;
-import uk.org.toot.synth.example1.*;
 import uk.org.toot.synth.example2.*;
 import uk.org.toot.audio.mixer.*;
 import uk.org.toot.audio.server.*;
@@ -59,7 +58,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 
 	protected SynthRack synthRack;
 	protected SynthRackControls synthRackControls;
-	protected ExampleSynthControls exampleSynthControls;
 	protected Example2SynthControls example2SynthControls;
 	
 //	protected DemoSourceControls demoSourceControls;
@@ -80,7 +78,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	protected void create(String[] args) {
 		try {
 			AudioMixer mixer = null;
-			int nSources = 0;
+			int nSources = 1; // line in
 			// create the shared transport
 			transport = new DefaultTransport();
 			// create the shared project 'manager'
@@ -126,17 +124,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				project.setProjectsRoot(projectsRoot);
 			}
 
-			if ( hasMidi ) {
-				sequencer = new ProjectMidiSequencer(project);
-				// ProjectMidiSystem must be created after the sequencer
-				// so that it can open connections after the sequencer
-				// has updated its ports for a new project
-				midiSystem = new ProjectMidiSystem(project);
-				LegacyDevices.installPlatformPorts(midiSystem);
-				midiSystem.addMidiDevice(sequencer);
-
-			}
-
 			if ( hasAudio ) {
 				// create the multitrack player controls
 				if ( hasMultiTrack ) {
@@ -147,7 +134,27 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 					// create the multitrack player
 					multiTrack = new ProjectMultiTrackPlayer(project, multiTrackControls);
 				}
+				
+			}
+			
+			if ( hasMidi ) {
+				sequencer = new ProjectMidiSequencer(project);
+				// ProjectMidiSystem must be created after the sequencer
+				// so that it can open connections after the sequencer
+				// has updated its ports for a new project
+				midiSystem = new ProjectMidiSystem(project);
+				LegacyDevices.installPlatformPorts(midiSystem);
+				midiSystem.addMidiDevice(sequencer);
 
+				synthRack = new SynthRack(midiSystem);
+				MidiSynth midiSynthA = new MidiSynth("Synth A");
+				MidiSynth midiSynthB = new MidiSynth("Synth B");
+				synthRack.addMidiSynth(midiSynthA); // adds the MIDI input
+				synthRack.addMidiSynth(midiSynthB); // adds the MIDI input
+				nSources += 16 * synthRack.getMidiSynths().size();
+			}
+
+			if ( hasAudio ) {
 				// create the mixer controls
 				int nMixerChans = intProperty("mixer.chans", 32);
 				if ( nMixerChans < nSources ) nMixerChans = nSources; // for sanity
@@ -177,34 +184,9 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				int s = connect(mixer);
 				
 				if ( hasMidi ) {
-					synthRack = new SynthRack(midiSystem);
-
-					// add an example midi synth for testing
-					MidiSynth midiSynth1 = new MidiSynth("Synth 1");
-					synthRack.addMidiSynth(midiSynth1); // adds the MIDI input
-					
-					// needs synths adding first
-					synthRackControls = new SynthRackControls(synthRack);
-
-					// and example synth channel controls for testing
-					exampleSynthControls = new ExampleSynthControls("ExSyn1");
-					// add to the first synth, first channel, using SPI for synth channel
-					synthRackControls.add(0, 0, exampleSynthControls);
-					// get the provided synth channel
-					SynthChannel synthChannel = synthRack.getMidiSynths().get(0).getChannels()[0];
-					// connect it to the next unsused mixer channel
-					mixer.getStrip(String.valueOf(s++)).setInputProcess(synthChannel);
-
-					// and example synth channel controls for testing
-					example2SynthControls = new Example2SynthControls("ExSyn2");
-					// add to the first synth, first channel, using SPI for synth channel
-					synthRackControls.add(0, 1, example2SynthControls);
-					// get the provided synth channel
-					synthChannel = synthRack.getMidiSynths().get(0).getChannels()[1];
-					// connect it to the next unsused mixer channel
-					mixer.getStrip(String.valueOf(s++)).setInputProcess(synthChannel);
+					// needs synths adding first, mixer and other connections
+					synthRackControls = new MixerConnectedSynthRackControls(synthRack, mixer, s);
 				}
-
 			}
 
 			// add module persistence to ~/toot/presets/<domain>/

@@ -11,8 +11,6 @@ import uk.org.toot.swingui.projectui.*;
 import uk.org.toot.swingui.synthui.SynthRackPanel;
 import uk.org.toot.swingui.audioui.mixerui.*;
 import uk.org.toot.swingui.audioui.serverui.*;
-import uk.org.toot.swingui.controlui.CompoundControlPanel;
-import uk.org.toot.swingui.controlui.ControlPanelFactory;
 
 //import javax.swing.JPanel;
 import javax.swing.JToolBar;
@@ -41,8 +39,8 @@ public class TransportProjectDemo extends AbstractAudioDemo
         };
 
         if ( hasMidi ) {
-            panel.addTab("Necks", new NecksView(midiSystem));
             panel.addTab("MIDI Patchbay", new MidiConnectionView(midiSystem));
+            panel.addTab("Necks", new NecksView(midiSystem));
             panel.addTab("Sequencer", new MidiSequencerPanel(sequencer, midiSystem));
        	}
         if ( hasAudio ) {
@@ -53,22 +51,6 @@ public class TransportProjectDemo extends AbstractAudioDemo
         		panel.addTab("MultiTrack", new MultiTrackPanel(multiTrackControls));
         	}
         	panel.addTab("Audio Mixer", new CompactMixerPanel(mixerControls));
-        	if ( hasMidi ) {
-        		panel.addTab("Synth", 
-        				new CompoundControlPanel(exampleSynthControls, 1, null,
-        						new ControlPanelFactory() {
-        					protected boolean canEdit() { return true; }
-        				}, true, true)
-        		);
-        		panel.addTab("Synth 2", 
-        				new CompoundControlPanel(example2SynthControls, 1, null,
-        						new ControlPanelFactory() {
-        					protected boolean canEdit() { return true; }
-        				}, true, true)
-        		);
-        	}
-        // add the source demo panel as a separate frame
-//        frame(new DemoSourcePanel(demoSourceControls), "Source Demo");
         }
        	frame(panel, "Toot Transport Project");
 		project.openProject("default");

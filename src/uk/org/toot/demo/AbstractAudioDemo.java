@@ -8,14 +8,19 @@ package uk.org.toot.demo;
 import java.util.Observable;
 import java.util.Observer;
 import uk.org.toot.control.*;
+import uk.org.toot.control.automation.MidiFileSnapshotAutomation;
 import uk.org.toot.swingui.audioui.serverui.*;
+import uk.org.toot.synth.automation.SynthRackControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.synth.example2.*;
 import uk.org.toot.audio.mixer.*;
+import uk.org.toot.audio.mixer.automation.MixerControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.audio.server.*;
 import uk.org.toot.midi.core.ConnectedMidiSystem;
 import uk.org.toot.midi.core.LegacyDevices;
 import uk.org.toot.synth.*;
 import uk.org.toot.project.*;
+import uk.org.toot.project.automation.ProjectMidiFileSnapshotAutomation;
+import uk.org.toot.project.midi.ProjectMidiSystem;
 import uk.org.toot.transport.*;
 import java.io.File;
 import uk.org.toot.audio.core.*;
@@ -172,8 +177,12 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 						intProperty("mixer.groups", 2));
 				MixerControlsFactory.createChannelStrips(mixerControls, nMixerChans);
 				// add snapshot automation of the mixer controls
-				MixerControlsSnapshotAutomation snapshotAutomation =
-					new ProjectMidiFileSnapshotAutomation(mixerControls, project);
+				MidiFileSnapshotAutomation snapshotAutomation =
+					new MidiFileSnapshotAutomation(
+						new MixerControlsMidiSequenceSnapshotAutomation(mixerControls)
+						, ".mixer-snapshot");
+				
+				new ProjectMidiFileSnapshotAutomation(snapshotAutomation, project);
 				mixerControls.setSnapshotAutomation(snapshotAutomation);
 				// add dynamic automation of the mixer controls
 //				MixerControlsDynamicAutomation dynamicAutomation =
@@ -186,6 +195,11 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				if ( hasMidi ) {
 					// needs synths adding first, mixer and other connections
 					synthRackControls = new MixerConnectedSynthRackControls(synthRack, mixer, s);
+					new ProjectMidiFileSnapshotAutomation(
+						new MidiFileSnapshotAutomation(
+							new SynthRackControlsMidiSequenceSnapshotAutomation(synthRackControls)
+							, ".synths-snapshot")
+						, project);
 				}
 			}
 

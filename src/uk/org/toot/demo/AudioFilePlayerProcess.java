@@ -74,7 +74,7 @@ public class AudioFilePlayerProcess implements AudioProcess
         } catch (javax.sound.sampled.UnsupportedAudioFileException uafe) {
             uafe.printStackTrace();
         } catch ( IOException ioe ) {
-            ioe.printStackTrace();
+            System.err.println(ioe);
         }
         if ( debug ) System.out.print("O");
     }

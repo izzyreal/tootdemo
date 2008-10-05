@@ -5,27 +5,28 @@
 
 package uk.org.toot.demo;
 
-import java.util.Observable;
-import java.util.Observer;
 import uk.org.toot.control.*;
 import uk.org.toot.control.automation.MidiFileSnapshotAutomation;
-import uk.org.toot.swingui.audioui.serverui.*;
-import uk.org.toot.synth.automation.SynthRackControlsMidiSequenceSnapshotAutomation;
-import uk.org.toot.synth.example2.*;
+import uk.org.toot.audio.core.*;
 import uk.org.toot.audio.mixer.*;
 import uk.org.toot.audio.mixer.automation.MixerControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.audio.server.*;
 import uk.org.toot.midi.core.ConnectedMidiSystem;
 import uk.org.toot.midi.core.LegacyDevices;
 import uk.org.toot.synth.*;
+import uk.org.toot.synth.automation.SynthRackControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.project.*;
 import uk.org.toot.project.automation.ProjectMidiFileSnapshotAutomation;
 import uk.org.toot.project.midi.ProjectMidiSystem;
 import uk.org.toot.transport.*;
-import java.io.File;
-import uk.org.toot.audio.core.*;
-import javax.swing.*;
+import uk.org.toot.swingui.audioui.serverui.*;
+
 import java.awt.Color;
+import java.util.Observable;
+import java.util.Observer;
+import java.io.File;
+
+import javax.swing.*;
 
 /**
  * AbstractAudioDemo creates a problem domain containing an automated mixer and
@@ -63,10 +64,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 
 	protected SynthRack synthRack;
 	protected SynthRackControls synthRackControls;
-	protected Example2SynthControls example2SynthControls;
 	
-//	protected DemoSourceControls demoSourceControls;
-
 	/*
 	 * Each creational property is obtained from one of several sources,
 	 * tried in the following order.
@@ -111,16 +109,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 					}
 				});
 				serverConfig.applyProperties(properties);
-
-				/*        	System.out.println("Inputs:");
-        	for ( String in : server.getAvailableInputNames() ) {
-        		System.out.println(in);
-        	}
-        	System.out.println("Outputs:");
-        	for ( String in : server.getAvailableOutputNames() ) {
-        		System.out.println(in);
-        	}
-				 */
 			}
 
 			// set the projects root
@@ -144,19 +132,20 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			
 			if ( hasMidi ) {
 				sequencer = new ProjectMidiSequencer(project);
-				// ProjectMidiSystem must be created after the sequencer
-				// so that it can open connections after the sequencer
-				// has updated its ports for a new project
+				synthRackControls = new SynthRackControls(8);
+				new ProjectMidiFileSnapshotAutomation(
+					new MidiFileSnapshotAutomation(
+						new SynthRackControlsMidiSequenceSnapshotAutomation(synthRackControls)
+						, ".synths-snapshot")
+					, project);
+				// ProjectMidiSystem must be created after the sequencer and synth rack
+				// so that it can open connections after the
+				// ports have been updated for a new project
 				midiSystem = new ProjectMidiSystem(project);
 				LegacyDevices.installPlatformPorts(midiSystem);
 				midiSystem.addMidiDevice(sequencer);
 
-				synthRack = new SynthRack(midiSystem);
-				MidiSynth midiSynthA = new MidiSynth("Synth A");
-				MidiSynth midiSynthB = new MidiSynth("Synth B");
-				synthRack.addMidiSynth(midiSynthA); // adds the MIDI input
-				synthRack.addMidiSynth(midiSynthB); // adds the MIDI input
-				nSources += 16 * synthRack.getMidiSynths().size();
+				nSources += 32 + 8; // TODO synthrack (2 multis, others single)
 			}
 
 			if ( hasAudio ) {
@@ -190,16 +179,10 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				// create the automated mixer
 				mixer = new AudioMixer(mixerControls, server);
 				
-				int s = connect(mixer);
+				/*int s =*/ connect(mixer);
 				
 				if ( hasMidi ) {
-					// needs synths adding first, mixer and other connections
-					synthRackControls = new MixerConnectedSynthRackControls(synthRack, mixer, s);
-					new ProjectMidiFileSnapshotAutomation(
-						new MidiFileSnapshotAutomation(
-							new SynthRackControlsMidiSequenceSnapshotAutomation(synthRackControls)
-							, ".synths-snapshot")
-						, project);
+					synthRack = new MixerConnectedSynthRack(synthRackControls, midiSystem, mixer);
 				}
 			}
 
@@ -229,17 +212,18 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			}
 		} catch ( Exception e ) {
 			e.printStackTrace();
-			waitForKeypress();
+			System.out.println("Resource Disposal");
+			dispose();
 		}
 	}
 
 	// the opposite of create()
 	protected void dispose() {
-		if ( hasMidi ) {
+		if ( hasMidi && midiSystem != null ) {
 			midiSystem.close(); // close all open midi devices
 		}
 		
-		if ( hasAudio ) {
+		if ( hasAudio && server != null ) {
 			server.stop();
 //			server.close(); // close all open audio devices
 		}
@@ -262,12 +246,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				mixer.getStrip(String.valueOf(s++)).setInputProcess(p);
 			}
 		}
-
-		// create a demo source connected to the next available strip
-		/*            String demoSourceStripName = String.valueOf(s++);
-            demoSourceControls = new DemoSourceControls(mixerControls, demoSourceStripName, "A");
-            DemoSourceProcess dsp = new DemoSourceProcess(demoSourceControls);
-            mixer.getStrip(demoSourceStripName).setInputProcess(dsp); */
 
 		// create an input connected to the next available strip
 		String lineName = "Line In";

@@ -68,7 +68,7 @@ public class MultiTrackPlayer implements AudioClient
         Control[] controls = multiTrackControls.getMemberControls();
         trackLimit = controls.length;
         for ( int i = 0; i < trackLimit; i++ ) {
-            filePlayers.add(new PlayerProcess((AudioControlsChain)controls[i]));
+            filePlayers.add(new PlayerProcess((AudioControlsChain)controls[i], "Tape "+(1+i)));
         }
 //		filePlayers.get(0).debug = true;
     }
@@ -116,7 +116,8 @@ public class MultiTrackPlayer implements AudioClient
         private MeterProcess meter;
         private AudioBuffer.MetaInfo metaInfo = null;
 
-        public PlayerProcess(AudioControlsChain controls) {
+        public PlayerProcess(AudioControlsChain controls, String location) {
+        	super(location);
             chain = controls;
             // find MeterControls in controls
             for ( Control c : controls.getControls() ) {
@@ -145,7 +146,7 @@ public class MultiTrackPlayer implements AudioClient
 	            if ( metaInfo != buffer.getMetaInfo() ) {
    		            metaInfo = buffer.getMetaInfo();
      		        if ( metaInfo != null ) { // !!! !!! why necessary ???
-           		    	chain.setSourceLabel(metaInfo.getSourceLabel());
+           		    	chain.setMetaInfo(metaInfo);
 //                        System.out.println(metaInfo.getSourceLabel());
              		}
 	        	}

@@ -36,8 +36,10 @@ public class AudioFilePlayerProcess implements AudioProcess
     private boolean useThreads = true;
 	private static ThreadGroup threadGroup = null;
     boolean debug = false;
+    private String location;
 
-    public AudioFilePlayerProcess() {
+    public AudioFilePlayerProcess(String location) {
+    	this.location = location;
 	    if ( useThreads ) {
 			// circular buffer blocks on read and write, no trigger
     		circularBuffer = new TCircularBuffer(250000, true, true, null);
@@ -82,7 +84,7 @@ public class AudioFilePlayerProcess implements AudioProcess
     public void setFile(File file, String name) {
         this.file = file;
 		close();
-        metaInfo = new AudioBuffer.MetaInfo(name);
+        metaInfo = new AudioBuffer.MetaInfo(name, location);
     }
 
     public void open() {}

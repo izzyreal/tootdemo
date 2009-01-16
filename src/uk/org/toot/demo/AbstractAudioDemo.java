@@ -13,6 +13,7 @@ import uk.org.toot.audio.mixer.automation.MixerControlsMidiSequenceSnapshotAutom
 import uk.org.toot.audio.server.*;
 import uk.org.toot.midi.core.ConnectedMidiSystem;
 import uk.org.toot.midi.core.LegacyDevices;
+import uk.org.toot.misc.VST;
 import uk.org.toot.synth.*;
 import uk.org.toot.synth.automation.SynthRackControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.project.*;
@@ -117,6 +118,9 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				project.setProjectsRoot(projectsRoot);
 			}
 
+			VST.addPluginPath("N:\\Program Files\\Steinberg\\Vstplugins");
+			VST.addPluginPath("H:\\plugins");
+
 			if ( hasAudio ) {
 				// create the multitrack player controls
 				if ( hasMultiTrack ) {
@@ -132,12 +136,14 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			
 			if ( hasMidi ) {
 				sequencer = new ProjectMidiSequencer(project);
-				synthRackControls = new SynthRackControls(8);
-				new ProjectMidiFileSnapshotAutomation(
-					new MidiFileSnapshotAutomation(
-						new SynthRackControlsMidiSequenceSnapshotAutomation(synthRackControls)
-						, ".synths-snapshot")
-					, project);
+				if ( hasAudio ) {
+					synthRackControls = new SynthRackControls(8);
+					new ProjectMidiFileSnapshotAutomation(
+						new MidiFileSnapshotAutomation(
+							new SynthRackControlsMidiSequenceSnapshotAutomation(synthRackControls)
+							, ".synths-snapshot")
+						, project);
+				}
 				// ProjectMidiSystem must be created after the sequencer and synth rack
 				// so that it can open connections after the
 				// ports have been updated for a new project
@@ -221,6 +227,10 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	protected void dispose() {
 		if ( hasMidi && midiSystem != null ) {
 			midiSystem.close(); // close all open midi devices
+		}
+		
+		if ( hasMidi && synthRack != null ) {
+			synthRack.close();
 		}
 		
 		if ( hasAudio && server != null ) {

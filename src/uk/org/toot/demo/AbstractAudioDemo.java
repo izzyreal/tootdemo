@@ -13,7 +13,7 @@ import uk.org.toot.audio.mixer.automation.MixerControlsMidiSequenceSnapshotAutom
 import uk.org.toot.audio.server.*;
 import uk.org.toot.midi.core.ConnectedMidiSystem;
 import uk.org.toot.midi.core.LegacyDevices;
-import uk.org.toot.misc.VST;
+import uk.org.toot.misc.Vst;
 import uk.org.toot.synth.*;
 import uk.org.toot.synth.automation.SynthRackControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.project.*;
@@ -43,6 +43,8 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	protected AudioServer server;
 	protected AudioServerConfiguration serverConfig;
 
+	protected AudioMixer mixer;
+	
 	/**
 	 * @link aggregationByValue
 	 * @supplierCardinality 1 
@@ -81,7 +83,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	 */
 	protected void create(String[] args) {
 		try {
-			AudioMixer mixer = null;
 			int nSources = 1; // line in
 			// create the shared transport
 			transport = new DefaultTransport();
@@ -118,8 +119,8 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				project.setProjectsRoot(projectsRoot);
 			}
 
-			VST.addPluginPath("N:\\Program Files\\Steinberg\\Vstplugins");
-			VST.addPluginPath("H:\\plugins");
+			Vst.addPluginPath("N:\\Program Files\\Steinberg\\Vstplugins");
+			Vst.addPluginPath("H:\\plugins");
 
 			if ( hasAudio ) {
 				// create the multitrack player controls
@@ -231,6 +232,10 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 		
 		if ( hasMidi && synthRack != null ) {
 			synthRack.close();
+		}
+		
+		if ( hasAudio && mixer != null ) {
+			mixer.close();
 		}
 		
 		if ( hasAudio && server != null ) {

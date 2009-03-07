@@ -11,12 +11,16 @@ import uk.org.toot.audio.core.*;
 import uk.org.toot.audio.mixer.*;
 import uk.org.toot.audio.mixer.automation.MixerControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.audio.server.*;
+import uk.org.toot.audio.system.MixerConnectedAudioSystem;
 import uk.org.toot.midi.core.ConnectedMidiSystem;
 import uk.org.toot.midi.core.LegacyDevices;
 import uk.org.toot.misc.Vst;
+import uk.org.toot.misc.plugin.Plugin;
+import uk.org.toot.misc.plugin.TootPluginSupport;
 import uk.org.toot.synth.*;
 import uk.org.toot.synth.automation.SynthRackControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.project.*;
+import uk.org.toot.project.audio.ProjectAudioSystem;
 import uk.org.toot.project.automation.ProjectMidiFileSnapshotAutomation;
 import uk.org.toot.project.midi.ProjectMidiSystem;
 import uk.org.toot.transport.*;
@@ -64,9 +68,11 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	protected boolean hasAudio = true;
 
 	protected ConnectedMidiSystem midiSystem;
+	protected MixerConnectedAudioSystem audioSystem;
 
 	protected SynthRack synthRack;
 	protected SynthRackControls synthRackControls;
+	protected SynthRackControlsMidiSequenceSnapshotAutomation synthRackControlsSnapshotAutomation;
 	
 	/*
 	 * Each creational property is obtained from one of several sources,
@@ -86,6 +92,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			int nSources = 1; // line in
 			// create the shared transport
 			transport = new DefaultTransport();
+			Plugin.setPluginSupport(new TootPluginSupport(transport));
 			// create the shared project 'manager'
 			project = new SingleTransportProject(transport);
 			// load the demo properties
@@ -139,10 +146,11 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				sequencer = new ProjectMidiSequencer(project);
 				if ( hasAudio ) {
 					synthRackControls = new SynthRackControls(8);
+					synthRackControlsSnapshotAutomation =
+						new SynthRackControlsMidiSequenceSnapshotAutomation(synthRackControls);
 					new ProjectMidiFileSnapshotAutomation(
 						new MidiFileSnapshotAutomation(
-							new SynthRackControlsMidiSequenceSnapshotAutomation(synthRackControls)
-							, ".synths-snapshot")
+							synthRackControlsSnapshotAutomation, ".synths-snapshot")
 						, project);
 				}
 				// ProjectMidiSystem must be created after the sequencer and synth rack
@@ -188,8 +196,12 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				
 				/*int s =*/ connect(mixer);
 				
+				// audio system must be after mixer automation and synth automation
+				audioSystem = new ProjectAudioSystem(project, mixer);
 				if ( hasMidi ) {
-					synthRack = new MixerConnectedSynthRack(synthRackControls, midiSystem, mixer);
+					// synth automation needs to disable audiosystem autoconnect
+					synthRackControlsSnapshotAutomation.setAudioSystem(audioSystem);
+					synthRack = new SynthRack(synthRackControls, midiSystem, audioSystem);
 				}
 			}
 

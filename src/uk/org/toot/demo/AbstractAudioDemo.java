@@ -54,7 +54,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	 * @supplierCardinality 1 
 	 */
 	protected MultiTrackPlayer multiTrack;
-	protected boolean hasMultiTrack = true;
+	protected boolean hasMultiTrack = false;
 
 	/**
 	 * @link aggregationByValue 
@@ -83,8 +83,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	 *
 	 * i.e. the properties file overrides the defaults and the command line
 	 * overrides everything.
-	 * AudioServerChooser allows server properties to be reviewed/changed
-	 * prior to use.
 	 * If the server starts without exception properties should probably be saved.
 	 */
 	protected void create(String[] args) {
@@ -98,12 +96,26 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			// load the demo properties
 			properties = new DemoProperties(project.getApplicationPath());
 			if ( hasAudio ) {
-				// choose and configure and audio server
-				// modifies server and sample.rate properties
-				AudioServerChooser.showDialog(properties);
+				// choose an audio server
+				String serverName = AudioServerChooser.showDialog(property("server"));
+				if ( serverName == null ) dispose();
+				// remember it for next time
+				properties.put("server", serverName);
 				// create the audio server
-				realServer = AudioServerServices.createServer(property("server"));
-				realServer.setSampleRate((float)intProperty("sample.rate", 44100));
+				realServer = AudioServerServices.createServer(serverName);
+				// hook in the setup ui config if available
+				final AudioServerConfiguration serverSetup = AudioServerServices.createServerSetup(realServer);
+				if ( serverSetup != null ) {
+					serverSetup.applyProperties(properties);
+					serverSetup.addObserver(new Observer() {
+						public void update(Observable obs, Object obj) {
+							serverSetup.mergeInto(properties);
+							properties.store();
+						}
+					});
+				}
+				// show setup ui for sample rate etc.
+				AudioServerUIServices.showSetupDialog(realServer, serverSetup);
 				// hook it for non-real-time
 				server = new NonRealTimeAudioServer(realServer);
 				// hack the non real time audio server into the project 'manager'
@@ -111,13 +123,15 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 					project.setNonRealTimeAudioServer((NonRealTimeAudioServer)server);
 				}
 				serverConfig = AudioServerServices.createServerConfiguration(realServer);
-				serverConfig.addObserver(new Observer() {
-					public void update(Observable obs, Object obj) {
-						serverConfig.mergeInto(properties);
-						properties.store();
-					}
-				});
-				serverConfig.applyProperties(properties);
+				if ( serverConfig != null ) {
+					serverConfig.applyProperties(properties);
+					serverConfig.addObserver(new Observer() {
+						public void update(Observable obs, Object obj) {
+							serverConfig.mergeInto(properties);
+							properties.store();
+						}
+					});
+				}
 			}
 
 			// set the projects root
@@ -231,13 +245,20 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			}
 		} catch ( Exception e ) {
 			e.printStackTrace();
-			System.out.println("Resource Disposal");
 			dispose();
 		}
 	}
 
 	// the opposite of create()
 	protected void dispose() {
+		System.out.println("Resource Disposal");
+		if ( hasAudio && server != null ) {
+			server.stop();
+//			server.close(); // close all open audio devices
+		}
+
+		// close audioSystem? TODO
+		
 		if ( hasMidi && midiSystem != null ) {
 			midiSystem.close(); // close all open midi devices
 		}
@@ -250,10 +271,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			mixer.close();
 		}
 		
-		if ( hasAudio && server != null ) {
-			server.stop();
-//			server.close(); // close all open audio devices
-		}
 		System.exit(0);
 	}
 	

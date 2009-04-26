@@ -101,6 +101,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				if ( serverName == null ) dispose();
 				// remember it for next time
 				properties.put("server", serverName);
+				properties.store();
 				// create the audio server
 				realServer = AudioServerServices.createServer(serverName);
 				// hook in the setup ui config if available

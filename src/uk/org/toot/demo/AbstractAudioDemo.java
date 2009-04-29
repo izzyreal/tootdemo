@@ -14,7 +14,6 @@ import uk.org.toot.audio.server.*;
 import uk.org.toot.audio.system.MixerConnectedAudioSystem;
 import uk.org.toot.midi.core.ConnectedMidiSystem;
 import uk.org.toot.midi.core.LegacyDevices;
-import uk.org.toot.misc.Vst;
 import uk.org.toot.misc.plugin.Plugin;
 import uk.org.toot.misc.plugin.TootPluginSupport;
 import uk.org.toot.synth.*;
@@ -140,9 +139,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			if ( projectsRoot != null ) {
 				project.setProjectsRoot(projectsRoot);
 			}
-
-			Vst.addPluginPath("N:\\Program Files\\Steinberg\\Vstplugins");
-			Vst.addPluginPath("H:\\plugins");
 
 			if ( hasAudio ) {
 				// create the multitrack player controls

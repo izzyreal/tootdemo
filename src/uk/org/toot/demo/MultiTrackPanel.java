@@ -5,9 +5,9 @@
 
 package uk.org.toot.demo;
 
+import uk.org.toot.swingui.DisposablePanel;
 import uk.org.toot.swingui.audioui.AudioCompoundStripPanel;
 import uk.org.toot.swingui.audioui.meterui.MeterPanelFactory;
-import uk.org.toot.swing.DisposablePanel;
 import java.awt.BorderLayout;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;

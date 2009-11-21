@@ -126,10 +126,8 @@ public class AudioFilePlayerProcess implements AudioProcess
     }
 
     public int processAudio(AudioBuffer buffer) {
-        if ( ais == null ) {
-            return AUDIO_DISCONNECT;
-        }
         attachMetaInfo(buffer);
+        if ( ais == null ) return AUDIO_DISCONNECT;
         buffer.setChannelFormat(channelFormat);
         try {
             // pretend the file is at our sample rate

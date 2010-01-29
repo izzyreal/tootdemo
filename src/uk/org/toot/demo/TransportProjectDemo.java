@@ -41,7 +41,9 @@ public class TransportProjectDemo extends AbstractAudioDemo
         if ( hasMidi ) {
             panel.addTab("MIDI Patchbay", new MidiConnectionView(midiSystem));
             panel.addTab("Necks", new NecksView(midiSystem));
-            panel.addTab("Sequencer", new MidiSequencerPanel(sequencer, midiSystem));
+            if ( hasSequencer ) {
+            	panel.addTab("Sequencer", new MidiSequencerPanel(sequencer, midiSystem));
+        	}
        	}
         if ( hasAudio ) {
         	if ( hasMidi ) {

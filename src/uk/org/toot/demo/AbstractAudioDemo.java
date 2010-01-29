@@ -62,7 +62,10 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	protected MultiTrackControls multiTrackControls;
 	protected MixerControls mixerControls;
 
+	protected ProjectMidiPlayer player;
 	protected ProjectMidiSequencer sequencer;
+	protected boolean hasMidiPlayer = true;
+	protected boolean hasSequencer = false;
 	protected boolean hasMidi = true;
 	protected boolean hasAudio = true;
 
@@ -154,7 +157,11 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			}
 			
 			if ( hasMidi ) {
-				sequencer = new ProjectMidiSequencer(project);
+				if ( hasMidiPlayer ) {
+					player = new ProjectMidiPlayer(project);
+				} else if ( hasSequencer ) {
+					sequencer = new ProjectMidiSequencer(project);
+				}
 				if ( hasAudio ) {
 					synthRackControls = new SynthRackControls(8);
 					synthRackControlsSnapshotAutomation =
@@ -169,8 +176,11 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				// ports have been updated for a new project
 				midiSystem = new ProjectMidiSystem(project);
 				LegacyDevices.installPlatformPorts(midiSystem);
-				midiSystem.addMidiDevice(sequencer);
-
+				if ( hasMidiPlayer ) {
+					midiSystem.addMidiDevice(player);
+				} else if ( hasSequencer ) {
+					midiSystem.addMidiDevice(sequencer);
+				}
 				nSources += 32 + 8; // TODO synthrack (2 multis, others single)
 			}
 
@@ -204,6 +214,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 //				new TestMixerControlsMidiDynamicAutomation(mixerControls);
 				// create the automated mixer
 				mixer = new AudioMixer(mixerControls, server);
+				Taps.setAudioServer(server);
 				
 				/*int s =*/ connect(mixer);
 				

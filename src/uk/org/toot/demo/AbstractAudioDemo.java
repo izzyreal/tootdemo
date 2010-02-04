@@ -214,7 +214,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 //				new TestMixerControlsMidiDynamicAutomation(mixerControls);
 				// create the automated mixer
 				mixer = new AudioMixer(mixerControls, server);
-				Taps.setAudioServer(server);
 				
 				/*int s =*/ connect(mixer);
 				

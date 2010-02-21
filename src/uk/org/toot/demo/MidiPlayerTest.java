@@ -11,7 +11,7 @@ import javax.sound.midi.Sequence;
 import javax.swing.JFileChooser;
 
 import uk.org.toot.midi.seqng.MTCMidiPlayer;
-import uk.org.toot.midi.seqng.MidiPlayer;
+//import uk.org.toot.midi.seqng.MidiPlayer;
 import uk.org.toot.midi.seqng.MidiSource;
 import uk.org.toot.midi.seqng.SequenceMidiSource;
 

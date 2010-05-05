@@ -14,8 +14,6 @@ import uk.org.toot.audio.server.*;
 import uk.org.toot.audio.system.MixerConnectedAudioSystem;
 import uk.org.toot.midi.core.ConnectedMidiSystem;
 import uk.org.toot.midi.core.LegacyDevices;
-import uk.org.toot.misc.plugin.Plugin;
-import uk.org.toot.misc.plugin.TootPluginSupport;
 import uk.org.toot.synth.*;
 import uk.org.toot.synth.automation.SynthRackControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.project.*;
@@ -92,7 +90,6 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 			int nSources = 1; // line in
 			// create the shared transport
 			transport = new DefaultTransport();
-			Plugin.setPluginSupport(new TootPluginSupport(transport));
 			// create the shared project 'manager'
 			project = new SingleTransportProject(transport);
 			// load the demo properties

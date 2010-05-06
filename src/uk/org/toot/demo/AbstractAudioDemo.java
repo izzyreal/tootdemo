@@ -7,19 +7,19 @@ package uk.org.toot.demo;
 
 import uk.org.toot.control.*;
 import uk.org.toot.control.automation.MidiFileSnapshotAutomation;
+import uk.org.toot.audio.ProjectAudioSystem;
 import uk.org.toot.audio.core.*;
 import uk.org.toot.audio.mixer.*;
 import uk.org.toot.audio.mixer.automation.MixerControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.audio.server.*;
 import uk.org.toot.audio.system.MixerConnectedAudioSystem;
+import uk.org.toot.midi.ProjectMidiSystem;
 import uk.org.toot.midi.core.ConnectedMidiSystem;
 import uk.org.toot.midi.core.LegacyDevices;
 import uk.org.toot.synth.*;
 import uk.org.toot.synth.automation.SynthRackControlsMidiSequenceSnapshotAutomation;
 import uk.org.toot.project.*;
-import uk.org.toot.project.audio.ProjectAudioSystem;
 import uk.org.toot.project.automation.ProjectMidiFileSnapshotAutomation;
-import uk.org.toot.project.midi.ProjectMidiSystem;
 import uk.org.toot.transport.*;
 import uk.org.toot.swingui.audioui.serverui.*;
 
@@ -51,7 +51,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	 * @supplierCardinality 1 
 	 */
 	protected MultiTrackPlayer multiTrack;
-	protected boolean hasMultiTrack = false;
+	protected boolean hasMultiTrack = true;
 
 	/**
 	 * @link aggregationByValue 
@@ -160,7 +160,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 					sequencer = new ProjectMidiSequencer(project);
 				}
 				if ( hasAudio ) {
-					synthRackControls = new SynthRackControls(8);
+					synthRackControls = new ProjectSynthRackControls(8, project);
 					synthRackControlsSnapshotAutomation =
 						new SynthRackControlsMidiSequenceSnapshotAutomation(synthRackControls);
 					new ProjectMidiFileSnapshotAutomation(
@@ -212,10 +212,11 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 				// create the automated mixer
 				mixer = new AudioMixer(mixerControls, server);
 				
-				/*int s =*/ connect(mixer);
-				
 				// audio system must be after mixer automation and synth automation
 				audioSystem = new ProjectAudioSystem(project, mixer);
+
+                connect(mixer);
+                
 				if ( hasMidi ) {
 					// synth automation needs to disable audiosystem autoconnect
 					synthRackControlsSnapshotAutomation.setAudioSystem(audioSystem);
@@ -278,7 +279,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 		System.exit(0);
 	}
 	
-	protected int connect(AudioMixer mixer) throws Exception {
+	protected void connect(AudioMixer mixer) throws Exception {
 		
 		// connect an output to the main mixer bus
 		AudioProcess output = server.openAudioOutput(property("main.output"), "Line Out");
@@ -286,25 +287,22 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 //		output = new TransportExportAudioProcessAdapter(output, format, "Mixer Main Bus", transport);
 		mixer.getMainBus().setOutputProcess(output);
 //		mixer.getBus("Aux#2").setOutputProcess(new NullAudioProcess());
-		int s = 1;
 
 		if ( hasMultiTrack ) {
 			// connect multitrack outputs 1..n to mixer inputs 1..n
-			for ( AudioProcess p : multiTrack.getProcesses() ) {
-				mixer.getStrip(String.valueOf(s++)).setInputProcess(p);
-			}
+            audioSystem.addAudioDevice(multiTrack);
 		}
 
 		// create an input connected to the next available strip
 		String lineName = "Line In";
 		try {
-			String inputStripName = String.valueOf(s++);
+			String inputStripName = String.valueOf(multiTrack.getTrackLimit()+1);
 			mixer.getStrip(inputStripName).setInputProcess(
 					server.openAudioInput(property("main.input"), lineName));
 		} catch ( Exception e ) {
 			System.err.println("Failed to open "+lineName);
 		}
-		return s;
+		return;
 	}
 
 	protected void createUI(String[] args) {

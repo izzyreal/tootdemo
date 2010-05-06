@@ -7,17 +7,22 @@ package uk.org.toot.demo;
 
 import java.io.File;
 import java.util.List;
+import java.util.Collections;
+import java.util.Observable;
 import uk.org.toot.control.*;
 import uk.org.toot.audio.core.*;
 import uk.org.toot.audio.meter.*;
 import uk.org.toot.audio.server.AudioClient;
+import uk.org.toot.audio.system.AudioDevice;
+import uk.org.toot.audio.system.AudioInput;
+import uk.org.toot.audio.system.AudioOutput;
 import uk.org.toot.transport.*;
 
 /**
  * MultiTrackPlayer is an experimental multi-track player that has been
  * generalised from the Release 1 demo code.
  */
-public class MultiTrackPlayer implements AudioClient
+public class MultiTrackPlayer extends Observable implements AudioClient, AudioDevice
 {
     private Transport transport;
     private TransportListener transportListener;
@@ -100,17 +105,13 @@ public class MultiTrackPlayer implements AudioClient
         filePlayers.get(trk).setFile(f, name);
     }
 
-    public List<PlayerProcess> getProcesses() {
-        return filePlayers;
-    }
-
     public int getTrackLimit() { return trackLimit; }
 
     /**
      * PlayerProcess extends AudioFilePlayerProcess with a K-System meter and
      * for efficiency avoids metering if there is no audio connected.
      */
-    public class PlayerProcess extends AudioFilePlayerProcess
+    public class PlayerProcess extends AudioFilePlayerProcess implements AudioOutput
     {
         private AudioControlsChain chain;
         private MeterProcess meter;
@@ -135,7 +136,7 @@ public class MultiTrackPlayer implements AudioClient
             if ( playing ) {
                 ret = super.processAudio(buffer); // may be AUDIO_DISCONNECT !
                 prevPlayRet = ret;
-            } else if ( prevPlayRet != AUDIO_DISCONNECT ) {
+            } else { //if ( prevPlayRet != AUDIO_DISCONNECT ) {
                 // if we are stopped and we were previously playing
                 // we need to return silence to allow effects decays!
                 buffer.makeSilence();
@@ -157,5 +158,29 @@ public class MultiTrackPlayer implements AudioClient
 
             return ret;
         }
+
+        public String getLocation() {
+            return location;
+        }
+
+        public String getName() {
+            return location; // !!!
+        }
+    }
+
+    public void closeAudio() {
+        // TODO Auto-generated method stub       
+    }
+
+    public List<AudioInput> getAudioInputs() {
+        return Collections.emptyList();
+    }
+
+    public List<AudioOutput> getAudioOutputs() {
+        return Collections.<AudioOutput>unmodifiableList(filePlayers);
+    }
+
+    public String getName() {
+        return "MultiTrack";
     }
 }

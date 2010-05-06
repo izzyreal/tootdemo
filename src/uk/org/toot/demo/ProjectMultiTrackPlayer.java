@@ -9,8 +9,7 @@ import uk.org.toot.project.*;
 import java.io.*;
 
 /**
- * An exceptionally immature MultiTrackPlayer that is ultimately
- * intended to load a different 'reel' for each project.
+ * An exceptionally immature MultiTrackPlayer
  */
 public class ProjectMultiTrackPlayer extends MultiTrackPlayer
 {

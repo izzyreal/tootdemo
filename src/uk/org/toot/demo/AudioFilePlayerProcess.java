@@ -19,10 +19,11 @@ import org.tritonus.share.TCircularBuffer;
  * Playing always starts at the beginning of a buffer.
  * Also, files are not played back at their natural sample rate,
  * they are played back at the process sample rate.
- * Glitches may occur.
  */
 public class AudioFilePlayerProcess implements AudioProcess
 {
+    private static boolean debugFirst = false;
+    
     private File file = null;
     protected AudioInputStream ais = null;
     private ProcessFormat format;
@@ -36,10 +37,12 @@ public class AudioFilePlayerProcess implements AudioProcess
     private boolean useThreads = true;
 	private static ThreadGroup threadGroup = null;
     boolean debug = false;
-    private String location;
+    protected String location;
 
     public AudioFilePlayerProcess(String location) {
     	this.location = location;
+        debug = debugFirst;
+        debugFirst = false;
 	    if ( useThreads ) {
 			// circular buffer blocks on read and write, no trigger
     		circularBuffer = new TCircularBuffer(250000, true, true, null);
@@ -229,6 +232,7 @@ public class AudioFilePlayerProcess implements AudioProcess
         }
 
         public void start() {
+            flush();
            	thread = new Thread(threadGroup, this);
            	thread.setPriority(Thread.MAX_PRIORITY-2);
             if ( debug ) System.out.print("S");

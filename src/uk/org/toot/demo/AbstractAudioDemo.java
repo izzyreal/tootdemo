@@ -51,7 +51,7 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 	 * @supplierCardinality 1 
 	 */
 	protected MultiTrackPlayer multiTrack;
-	protected boolean hasMultiTrack = true;
+	protected boolean hasMultiTrack = false;
 
 	/**
 	 * @link aggregationByValue 
@@ -296,7 +296,10 @@ abstract public class AbstractAudioDemo extends AbstractDemo
 		// create an input connected to the next available strip
 		String lineName = "Line In";
 		try {
-			String inputStripName = String.valueOf(multiTrack.getTrackLimit()+1);
+			String inputStripName = "1";
+            if ( hasMultiTrack ) {
+                inputStripName = String.valueOf(multiTrack.getTrackLimit()+1); 
+            }
 			mixer.getStrip(inputStripName).setInputProcess(
 					server.openAudioInput(property("main.input"), lineName));
 		} catch ( Exception e ) {

@@ -7,6 +7,7 @@ package uk.org.toot.demo;
 
 import uk.org.toot.swingui.midiui.MidiConnectionView;
 import uk.org.toot.swingui.midixui.controlui.neckui.NecksView;
+import uk.org.toot.swingui.miscui.VstSetupUI;
 import uk.org.toot.swingui.projectui.*;
 import uk.org.toot.swingui.synthui.SynthRackPanel;
 import uk.org.toot.swingui.audioui.mixerui.*;
@@ -30,6 +31,7 @@ public class TransportProjectDemo extends AbstractAudioDemo
         if ( hasAudio ) {
         // the audio server panel is provided by a service provider
         toolBar.add(new AudioServerUIButton(AudioServerUIServices.createServerUI(realServer, serverConfig)));
+        toolBar.add(new VstSetupUI.Button());
         }
         SingleTransportProjectPanel panel = new SingleTransportProjectPanel(project, toolBar) {
         	protected void dispose() {

@@ -4,13 +4,13 @@ import javax.swing.JPanel;
 
 
 import uk.org.toot.swingui.tonalityui.KeyChooserPanel;
-import uk.org.toot.music.tonality.Scales;
+//import uk.org.toot.music.tonality.Scales;
 
 public class KeyChooserDemo extends AbstractDemo 
 {
 	@Override
 	protected void create(String[] args) {
-		Scales.LydianChromaticConcept.init();
+		//Scales.LydianChromaticConcept.init();
 		createUI(args);
 	}
 
